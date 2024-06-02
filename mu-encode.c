@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
 
 int sign (int sample) {
 	//return the sign of the sample: 1 (true) if positive, 0 (false) if negative. 
@@ -68,6 +70,30 @@ int main(int argc, char *argv[]) {
 	if (argc != 2) {
 		printf("Usage: %s <path/to/wav/file>", argv[0]);
 		return 1;
+	}
+
+	FILE* file = fopen(argv[1], "rb");
+	if (!file) {
+		printf("Failed to open file");
+	}
+
+	uint32_t buffer = 0;
+	int bits_in_buffer = 0;
+	int byte;
+	while ((byte = fgetc(file)) != EOF) {
+		buffer = (buffer << 8) | (byte & 0xFF); //add a new byte to buffer
+		bits_in_buffer += 8;
+
+		while (bits_in_buffer >= 14) {
+			uint32_t fourteen_bits = buffer & 0x3FFF;
+			buffer = buffer >> 14;
+			// Perform encoding here
+			//
+			// Debug print
+			printf("%u\n", fourteen_bits);
+
+			bits_in_buffer -= 14;
+		}
 	}
 	
 	return 0;
