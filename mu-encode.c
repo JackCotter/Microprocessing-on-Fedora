@@ -95,6 +95,40 @@ int main(int argc, char *argv[]) {
 		printf("Failed to open file");
 	}
 
+
+	// open the output file for writing
+	FILE *output_file = fopen("out.wav", "wb");
+    if (!output_file) {
+        fprintf(stderr, "Error opening output file\n");
+        fclose(file);
+        return;
+    }
+
+	// read and modify the WAV file header
+	WAVHeader in_header;
+	WAVHeader out_header;
+
+	fread(&in_header, sizeof(WAVHeader), 1, file);
+	// make a copy of the input header as it will be helpful in reading file
+	out_header = in_header;
+
+	// Check if the input file is a valid WAV file
+    if (memcmp(in_header.riff, "RIFF", 4) != 0 || memcmp(in_header.wave, "WAVE", 4) != 0) {
+        fprintf(stderr, "Invalid WAV file\n");
+        fclose(file);
+        fclose(output_file);
+        return;
+ 
+	// alter header fields for compressed data
+	out_header.bitsPerSample = 8;
+	out_header.byteRate = out_header.sampleRate * out_header.numChannels; // this calculation is sampleRate * numChannels * (bitsPerSample / 8) simplfied for 8 bit sample rate
+	out_header.blockAlign = out_header.numChannels; // this calculation is numChannels * bitsPerSample / 8 simplified for 8 bit sample rate
+	out_header.dataSize = out_header.dataSize / 2; //this can be reorganized to remove direct dependancies
+	out_header.chunkSize = 36 + out_header.dataSize;
+
+	fwrite(&out_header, sizeof(WAVHeader), 1, output_file);
+
+	// reading logic will need to be changed
 	uint32_t buffer = 0;
 	int bits_in_buffer = 0;
 	int byte;
