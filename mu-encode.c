@@ -1,6 +1,24 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
+
+// WAV file header format
+typedef struct {
+    char riff[4];
+    uint32_t chunkSize;
+    char wave[4];
+    char fmt[4];
+    uint32_t subChunk1Size;
+    uint16_t audioFormat;
+    uint16_t numChannels;
+    uint32_t sampleRate;
+    uint32_t byteRate;
+    uint16_t blockAlign;
+    uint16_t bitsPerSample;
+    char data[4];
+    uint32_t dataSize;
+} WAVHeader;
 
 int sign (int sample) {
 	//return the sign of the sample: 1 (true) if positive, 0 (false) if negative. 
