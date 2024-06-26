@@ -119,6 +119,7 @@ int main(int argc, char *argv[]) {
         fclose(output_file);
         return;
  
+	}
 	// alter header fields for compressed data
 	out_header.bitsPerSample = 8;
 	out_header.byteRate = out_header.sampleRate * out_header.numChannels; // this calculation is sampleRate * numChannels * (bitsPerSample / 8) simplfied for 8 bit sample rate
