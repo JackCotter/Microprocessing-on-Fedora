@@ -16,11 +16,11 @@ typedef struct {
     uint32_t byteRate;
     uint16_t blockAlign;
     uint16_t bitsPerSample;
-    char data[4];
+    uint32_t data;
     uint32_t dataSize;
 } WAVHeader;
 
-int sign (int sample) {
+int sign (int16_t sample) {
 	//return the sign of the sample: 1 (true) if positive, 0 (false) if negative. 
 	if (sample < 0) {
 		return 0;
@@ -28,14 +28,14 @@ int sign (int sample) {
 	return 1;
 }
 
-int magnitude (int sample) {
+int magnitude (int16_t sample) {
 	if (sample < 0) {
 		return -1 * sample;
 	}
 	return sample;
 }
 
-int codeword_compression ( unsigned int sample_magnitude, int sign) {
+int codeword_compression (int16_t sample_magnitude, int16_t sign) {
 	int chord, step, codeword_tmp;
 
 	if (sample_magnitude & (1 << 12)) {
@@ -43,43 +43,43 @@ int codeword_compression ( unsigned int sample_magnitude, int sign) {
 		chord = 0x7;
 		step = (sample_magnitude >> 8) & 0xF;
 		codeword_tmp = (sign << 7) & (chord << 4) & step;
-		return (char) codeword_tmp;
+		return (int8_t) codeword_tmp;
 	}
 	if (sample_magnitude & (1 << 11)) {
 		chord = 0x6;
 		step = (sample_magnitude >> 7) & 0xF;
 		codeword_tmp = (sign << 7) & (chord << 4) & step;
-		return (char) codeword_tmp;
+		return (int8_t) codeword_tmp;
 	}
 	if (sample_magnitude & (1 << 9)) {
 		chord = 0x4;
 		step = (sample_magnitude >> 5) & 0xF;
 		codeword_tmp = (sign << 7) & (chord << 4) & step;
-		return (char) codeword_tmp;
+		return (int8_t) codeword_tmp;
 	}
 	if (sample_magnitude & (1 << 8)) {
 		chord = 0x3;
 		step = (sample_magnitude >> 4) & 0xF;
 		codeword_tmp = (sign << 7) & (chord << 4) & step;
-		return (char) codeword_tmp;
+		return (int8_t) codeword_tmp;
 	}
 	if (sample_magnitude & (1 << 7)) {
 		chord = 0x2;
 		step = (sample_magnitude >> 3) & 0xF;
 		codeword_tmp = (sign << 7) & (chord << 4) & step;
-		return (char) codeword_tmp;
+		return (int8_t) codeword_tmp;
 	}
 	if (sample_magnitude & (1 << 6)) {
 		chord = 0x1;
 		step = (sample_magnitude >> 2) & 0xF;
 		codeword_tmp = (sign << 7) & (chord << 4) & step;
-		return (char) codeword_tmp;
+		return (int8_t) codeword_tmp;
 	}
 	if (sample_magnitude & (1 << 5)) {
 		chord = 0x0;
 		step = (sample_magnitude >> 1) & 0xF;
 		codeword_tmp = (sign << 7) & (chord << 4) & step;
-		return (char) codeword_tmp;
+		return (int8_t) codeword_tmp;
 	}
 	return 0;
 }
@@ -133,20 +133,15 @@ int main(int argc, char *argv[]) {
 	uint32_t buffer = 0;
 	int bits_in_buffer = 0;
 	int byte;
-	while ((byte = fgetc(file)) != EOF) {
-		buffer = (buffer << 8) | (byte & 0xFF); //add a new byte to buffer
-		bits_in_buffer += 8;
-
-		while (bits_in_buffer >= 14) {
-			uint32_t fourteen_bits = buffer & 0x3FFF;
-			buffer = buffer >> 14;
-			// Perform encoding here
-			//
-			// Debug print
-			printf("%u\n", fourteen_bits);
-
-			bits_in_buffer -= 14;
-		}
+	fseek(file, 0, in_header.data)
+	for(int i = 0; i < in_header.dataSize) {
+		byte1 = fgetc(file);
+		byte2 = fgetc(file);
+		int16_t data_point = byte1 << 8 & 0x8000 | byte1 << 6 & 0x1FFF | byte2 >> 2;
+		int16_t sign = sign(data_point);
+		int16_t magnitude = magnitude(data_point);
+		int8_t output_data_point = codeword_compression(magnitude, sign);
+		printf("%d", output_data_point);
 	}
 	
 	return 0;
