@@ -95,14 +95,13 @@ int main(int argc, char *argv[]) {
 		printf("Failed to open file");
 	}
 
-
 	// open the output file for writing
 	FILE *output_file = fopen("out.wav", "wb");
-    if (!output_file) {
-        fprintf(stderr, "Error opening output file\n");
-        fclose(file);
-        return;
-    }
+	if (!output_file) {
+		fprintf(stderr, "Error opening output file\n");
+		fclose(file);
+		return 0;
+	}
 
 	// read and modify the WAV file header
 	WAVHeader in_header;
@@ -113,12 +112,11 @@ int main(int argc, char *argv[]) {
 	out_header = in_header;
 
 	// Check if the input file is a valid WAV file
-    if (memcmp(in_header.riff, "RIFF", 4) != 0 || memcmp(in_header.wave, "WAVE", 4) != 0) {
-        fprintf(stderr, "Invalid WAV file\n");
-        fclose(file);
-        fclose(output_file);
-        return;
- 
+	if (memcmp(in_header.riff, "RIFF", 4) != 0 || memcmp(in_header.wave, "WAVE", 4) != 0) {
+		fprintf(stderr, "Invalid WAV file\n");
+		fclose(file);
+		fclose(output_file);
+		return 0;
 	}
 	// alter header fields for compressed data
 	out_header.bitsPerSample = 8;
@@ -133,14 +131,14 @@ int main(int argc, char *argv[]) {
 	uint32_t buffer = 0;
 	int bits_in_buffer = 0;
 	int byte;
-	fseek(file, 0, in_header.data)
-	for(int i = 0; i < in_header.dataSize) {
-		byte1 = fgetc(file);
-		byte2 = fgetc(file);
+	fseek(file, 0, in_header.data);
+	for(int i = 0; i < in_header.dataSize; i++) {
+		int16_t byte1 = fgetc(file);
+		int16_t byte2 = fgetc(file);
 		int16_t data_point = byte1 << 8 & 0x8000 | byte1 << 6 & 0x1FFF | byte2 >> 2;
-		int16_t sign = sign(data_point);
-		int16_t magnitude = magnitude(data_point);
-		int8_t output_data_point = codeword_compression(magnitude, sign);
+		int16_t sig = sign(data_point);
+		int16_t mag = magnitude(data_point);
+		int8_t output_data_point = codeword_compression(mag, sig);
 		printf("%d", output_data_point);
 	}
 	
