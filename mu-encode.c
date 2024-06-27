@@ -51,6 +51,12 @@ int codeword_compression (int16_t sample_magnitude, int16_t sign) {
 		codeword_tmp = (sign << 7) | (chord << 4) | step;
 		return (int8_t) codeword_tmp;
 	}
+	if (sample_magnitude & (1 << 10)) {
+		chord = 0x5;
+		step = (sample_magnitude >> 6) & 0xF;
+		codeword_tmp = (sign << 7) | (chord << 4) | step;
+		return (int8_t) codeword_tmp;
+	}
 	if (sample_magnitude & (1 << 9)) {
 		chord = 0x4;
 		step = (sample_magnitude >> 5) & 0xF;
