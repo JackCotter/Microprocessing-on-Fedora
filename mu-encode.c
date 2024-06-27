@@ -134,18 +134,19 @@ int main(int argc, char *argv[]) {
 	fseek(file, 0, in_header.data);
 	printf("%d", in_header.data);
 	for(int i = 0; i < in_header.dataSize; i++) {
+		//read 2 bytes 1 byte at a time
 		int16_t byte2 = fgetc(file);
 		int16_t byte1 = fgetc(file);
-		//printf("%d\n", byte1);
-		//printf("%d\n", byte2);
-		int16_t data_point = byte1 << 8 & 0x8000 | (byte1 & 0x7F) << 6 | byte2 >> 2;
-		printf("%d\n", data_point);
+		// combine the 2 bytes into a 16 bit integer
+		int16_t data_point = (byte1 << 8 & 0x8000 | ((byte1 & 0x7F) << 6) | (byte2 >> 2));
+		//extract sign and magnitude of the data point
 		int16_t sig = sign(data_point);
 		int16_t mag = magnitude(data_point);
-		//printf("%d\n", mag);
+		//compress
 		int8_t output_data_point = codeword_compression(mag, sig);
-		printf("%d\n", output_data_point);
-		fwrite(&output_data_point, 1, sizeof(output_data_point), output_file);
+		//write to output file
+		// printf("%d\n", output_data_point);
+		fwrite(&data_point, sizeof(data_point), 1, output_file);
 	}
 	fclose(output_file);
 	fclose(file);
