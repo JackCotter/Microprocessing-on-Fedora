@@ -145,7 +145,10 @@ int main(int argc, char *argv[]) {
 		//printf("%d\n", mag);
 		int8_t output_data_point = codeword_compression(mag, sig);
 		printf("%d\n", output_data_point);
+		fwrite(&output_data_point, 1, sizeof(output_data_point), output_file);
 	}
+	fclose(output_file);
+	fclose(file);
 	
 	return 0;
 }
