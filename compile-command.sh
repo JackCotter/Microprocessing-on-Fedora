@@ -1,1 +1,1 @@
-gcc -static -S -o ./mu-encode mu-encode.c
+gcc -static -S -o ./mu-encode.asm mu-encode.c
