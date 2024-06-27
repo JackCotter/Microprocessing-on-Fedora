@@ -101,7 +101,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	// open the output file for writing
-	FILE *output_file = fopen("out.wav", "wb");
+	FILE *output_file = fopen("decompressed_out.wav", "wb");
 	if (!output_file) {
 		fprintf(stderr, "Error opening output file\n");
 		fclose(file);
@@ -125,8 +125,8 @@ int main(int argc, char *argv[]) {
 	}
 	// alter header fields for compressed data
 	out_header.bitsPerSample = 16;
-	out_header.byteRate = out_header.sampleRate * out_header.numChannels; // this calculation is sampleRate * numChannels * (bitsPerSample / 8) simplfied for 8 bit sample rate
-	out_header.blockAlign = out_header.numChannels; // this calculation is numChannels * bitsPerSample / 8 simplified for 8 bit sample rate
+	out_header.byteRate = out_header.sampleRate * out_header.numChannels * 2; // this calculation is sampleRate * numChannels * (bitsPerSample / 8) simplfied for 8 bit sample rate
+	out_header.blockAlign = out_header.numChannels * 2; // this calculation is numChannels * bitsPerSample / 8 simplified for 8 bit sample rate
 	out_header.dataSize = out_header.dataSize * 2; //this can be reorganized to remove direct dependancies
 	out_header.chunkSize = 36 + out_header.dataSize;
 
