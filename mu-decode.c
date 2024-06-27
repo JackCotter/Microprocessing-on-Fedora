@@ -20,22 +20,19 @@ typedef struct {
     uint32_t dataSize;
 } WAVHeader;
 
-int sign (int8_t sample) {
+int8_t sign (int8_t sample) {
 	//return the sign of the sample: 1 (true) if positive, 0 (false) if negative. 
-	if (sample < 0) {
-		return 0;
+	if (sample & 1 << 7) {
+		return 1;
 	}
-	return 1;
+	return 0;
 }
 
-int magnitude (int8_t sample) {
-	if (sample < 0) {
-		return -1 * sample;
-	}
-	return sample;
+int8_t magnitude (int8_t sample) {
+	return sample & 0x7F;
 }
 
-int codeword_expansion (int8_t sample_magnitude, int8_t sign) {
+int16_t codeword_expansion (int8_t sample_magnitude, int8_t sign) {
 	int16_t chord, step, codeword_tmp;
 
 	if (sample_magnitude & (0x7 << 4)) {

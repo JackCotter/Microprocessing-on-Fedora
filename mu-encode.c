@@ -20,23 +20,23 @@ typedef struct {
     uint32_t dataSize;
 } WAVHeader;
 
-int sign (int16_t sample) {
+int16_t sign (int16_t sample) {
 	//return the sign of the sample: 1 (true) if positive, 0 (false) if negative. 
-	if (sample < 0) {
-		return 0;
+	if (sample & 1 << 15) {
+		return 1;
 	}
-	return 1;
+	return 0;
 }
 
-int magnitude (int16_t sample) {
-	if (sample < 0) {
-		return -1 * sample;
-	}
-	return sample;
+int16_t magnitude (int16_t sample) {
+	return sample & 0x7FFF;
 }
 
-int codeword_compression (int16_t sample_magnitude, int16_t sign) {
-	int8_t chord, step, codeword_tmp;
+int8_t codeword_compression (int16_t sample_magnitude, int16_t sign) {
+	int16_t chord, step;
+	int8_t codeword_tmp = 0;
+	printf("sign %x", sign & 0xFFFF);
+	printf("mag %x\n", sample_magnitude & 0xFFFF);
 
 	if (sample_magnitude & (1 << 12)) {
 		//12th bit is set therefore 8th chord
@@ -145,13 +145,14 @@ int main(int argc, char *argv[]) {
 		int16_t byte1 = fgetc(file);
 		// combine the 2 bytes into a 16 bit integer
 		int16_t data_point = (byte1 << 8 & 0x8000 | ((byte1 & 0x7F) << 6) | (byte2 >> 2));
+		printf("input: %x\n", data_point & 0xFFFF);
 		//extract sign and magnitude of the data point
 		int16_t sig = sign(data_point);
 		int16_t mag = magnitude(data_point);
 		//compress
 		int8_t output_data_point = codeword_compression(mag, sig);
 		//write to output file
-		// printf("%d\n", output_data_point);
+		printf("%x\n", output_data_point & 0xFF);
 		fwrite(&data_point, sizeof(data_point), 1, output_file);
 	}
 	fclose(output_file);
