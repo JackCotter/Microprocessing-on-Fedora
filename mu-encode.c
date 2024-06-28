@@ -35,8 +35,8 @@ int16_t magnitude (int16_t sample) {
 int8_t codeword_compression (int16_t sample_magnitude, int16_t sign) {
 	int16_t chord, step;
 	int8_t codeword_tmp = 0;
-	printf("sign %x", sign & 0xFFFF);
-	printf("mag %x\n", sample_magnitude & 0xFFFF);
+	// printf("sign %x", sign & 0xFFFF);
+	// printf("mag %x\n", sample_magnitude & 0xFFFF);
 
 	if (sample_magnitude & (1 << 12)) {
 		//12th bit is set therefore 8th chord
@@ -102,7 +102,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	// open the output file for writing
-	FILE *output_file = fopen("out.wav", "wb");
+	FILE *output_file = fopen("out.bin", "wb");
 	if (!output_file) {
 		fprintf(stderr, "Error opening output file\n");
 		fclose(file);
@@ -115,7 +115,6 @@ int main(int argc, char *argv[]) {
 
 	fread(&in_header, sizeof(WAVHeader), 1, file);
 	// make a copy of the input header as it will be helpful in reading file
-	out_header = in_header;
 
 	// Check if the input file is a valid WAV file
 	if (memcmp(in_header.riff, "RIFF", 4) != 0 || memcmp(in_header.wave, "WAVE", 4) != 0) {
@@ -124,36 +123,25 @@ int main(int argc, char *argv[]) {
 		fclose(output_file);
 		return 0;
 	}
-	// alter header fields for compressed data
-	out_header.bitsPerSample = 8;
-	out_header.byteRate = out_header.sampleRate * out_header.numChannels; // this calculation is sampleRate * numChannels * (bitsPerSample / 8) simplfied for 8 bit sample rate
-	out_header.blockAlign = out_header.numChannels; // this calculation is numChannels * bitsPerSample / 8 simplified for 8 bit sample rate
-	out_header.dataSize = out_header.dataSize / 2; //this can be reorganized to remove direct dependancies
-	out_header.chunkSize = 36 + out_header.dataSize;
 
-	fwrite(&out_header, sizeof(WAVHeader), 1, output_file);
-
-	// reading logic will need to be changed
-	uint32_t buffer = 0;
-	int bits_in_buffer = 0;
-	int byte;
-	fseek(file, 0, in_header.data);
-	printf("%d", in_header.data);
+	printf("%d", in_header.dataSize);
 	for(int i = 0; i < in_header.dataSize; i++) {
 		//read 2 bytes 1 byte at a time
 		int16_t byte2 = fgetc(file);
 		int16_t byte1 = fgetc(file);
 		// combine the 2 bytes into a 16 bit integer
 		int16_t data_point = (byte1 << 8 & 0x8000 | ((byte1 & 0x7F) << 6) | (byte2 >> 2));
-		printf("input: %x\n", data_point & 0xFFFF);
+		// printf("%x",data_point & 0xffff);
+		// return 0;
+		// printf("input: %x\n", data_point & 0xFFFF);
 		//extract sign and magnitude of the data point
 		int16_t sig = sign(data_point);
 		int16_t mag = magnitude(data_point);
 		//compress
 		int8_t output_data_point = codeword_compression(mag, sig);
 		//write to output file
-		printf("%x\n", output_data_point & 0xFF);
-		fwrite(&data_point, sizeof(data_point), 1, output_file);
+		// printf("%x\n", output_data_point & 0xFF);
+		fwrite(&output_data_point, sizeof(output_data_point), 1, output_file);
 	}
 	fclose(output_file);
 	fclose(file);
