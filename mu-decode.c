@@ -20,70 +20,67 @@ typedef struct {
     uint32_t dataSize;
 } WAVHeader;
 
-int sign (int8_t sample) {
+int8_t sign (int8_t sample) {
 	//return the sign of the sample: 1 (true) if positive, 0 (false) if negative. 
-	if (sample < 0) {
-		return 0;
+	if (sample & 1 << 7) {
+		return 1;
 	}
-	return 1;
+	return 0;
 }
 
-int magnitude (int8_t sample) {
-	if (sample < 0) {
-		return -1 * sample;
-	}
-	return sample;
+int8_t magnitude (int8_t sample) {
+	return sample & 0x7F;
 }
 
-int codeword_expansion (int8_t sample_magnitude, int8_t sign) {
+int16_t codeword_expansion (int8_t sample_magnitude, int8_t sign) {
 	int16_t chord, step, codeword_tmp;
 
 	if (sample_magnitude & (0x7 << 4)) {
 		chord = 0x1 << 12;
 		step = (sample_magnitude & 0xF);
-	       	codeword_tmp = (sign << 15) | chord | step << 8 | 0x1 << 7;
+	       	codeword_tmp = (sign << 15) | (chord | step << 8 | 0x1 << 7) << 2;
 	       	return (int16_t) codeword_tmp;
 	}
 	if (sample_magnitude & (0x6 << 4)) {
 		chord = 0x1 << 11;
 		step = (sample_magnitude & 0xF);
-	       	codeword_tmp = (sign << 15) | chord | step << 7 | 0x1 << 6;
+	       	codeword_tmp = (sign << 15) | (chord | step << 7 | 0x1 << 6) << 2;
 	       	return (int16_t) codeword_tmp;
 	} 
 	if (sample_magnitude & (0x5 << 4)) {
 		chord = 0x1 << 10;
 		step = (sample_magnitude & 0xF);
-	       	codeword_tmp = (sign << 15) | chord | step << 6 | 0x1 << 5;
+	       	codeword_tmp = (sign << 15) | (chord | step << 6 | 0x1 << 5) << 2;
 	       	return (int16_t) codeword_tmp;
 	} 
 	if (sample_magnitude & (0x4 << 4)) {
 		chord = 0x1 << 9;
 		step = (sample_magnitude & 0xF);
-	       	codeword_tmp = (sign << 15) | chord | step << 5 | 0x1 << 4;
+	       	codeword_tmp = (sign << 15) | (chord | step << 5 | 0x1 << 4) << 2;
 	       	return (int16_t) codeword_tmp;
 	}
 	if (sample_magnitude & (0x3 << 4)) {
 		chord = 0x1 << 8;
 		step = (sample_magnitude & 0xF);
-	       	codeword_tmp = (sign << 15) | chord | step << 4 | 0x1 << 3;
+	       	codeword_tmp = (sign << 15) | (chord | step << 4 | 0x1 << 3) << 2;
 	       	return (int16_t) codeword_tmp;
 	}
 	if (sample_magnitude & (0x2 << 4)) {
 		chord = 0x1 << 7;
 		step = (sample_magnitude & 0xF);
-	       	codeword_tmp = (sign << 15) | chord | step << 3 | 0x1 << 2;
+	       	codeword_tmp = (sign << 15) | (chord | step << 3 | 0x1 << 2) << 2;
 	       	return (int16_t) codeword_tmp;
 	}
 	if (sample_magnitude & (0x1 << 4)) {
 		chord = 0x1 << 6;
 		step = (sample_magnitude & 0xF);
-	       	codeword_tmp = (sign << 15) | chord | step << 2 | 0x1 << 1;
+	       	codeword_tmp = (sign << 15) | (chord | step << 2 | 0x1 << 1) << 2;
 	       	return (int16_t) codeword_tmp;
 	}
 	if (sample_magnitude & (0x7 << 4) == 0) {
 		chord = 0x1 << 5;
 		step = (sample_magnitude & 0xF);
-	       	codeword_tmp = (sign << 15) | chord | step << 1 | 0x1;
+	       	codeword_tmp = (sign << 15) | (chord | step << 1 | 0x1) << 2;
 	       	return (int16_t) codeword_tmp;
 	}
 	return 0;
@@ -141,9 +138,12 @@ int main(int argc, char *argv[]) {
 		int8_t mag = magnitude(byte);
 		//compress
 		int16_t data_point = codeword_expansion(mag, sig);
+		int8_t byte2 = data_point >> 8;
+		int8_t byte1 = data_point & 0xFF;
+		int16_t little_endian_data_point = (byte1 << 8) | byte2;
 		//write to output file
 		// printf("%d\n", output_data_point);
-		fwrite(&data_point, sizeof(data_point), 1, output_file);
+		fwrite(&little_endian_data_point, sizeof(little_endian_data_point), 1, output_file);
 	}
 	fclose(output_file);
 	fclose(file);
