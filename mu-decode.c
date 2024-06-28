@@ -6,7 +6,7 @@
 // WAV file header format
 typedef struct {
     char riff[4];
-    uint32_t chunkSize;
+    uint32_t fileSize;
     char wave[4];
     char fmt[4];
     uint32_t subChunk1Size;
@@ -16,11 +16,32 @@ typedef struct {
     uint32_t byteRate;
     uint16_t blockAlign;
     uint16_t bitsPerSample;
-    uint32_t data;
+    char data[4];
     uint32_t dataSize;
 } WAVHeader;
 
-int8_t sign (int8_t sample) {
+void initWAVHeader(WAVHeader *wh, uint16_t bitsPerSample){
+    memcpy(wh->riff, "RIFF", 4);
+    wh->fileSize = 0; // Placeholder, should be set later
+    memcpy(wh->wave, "WAVE", 4);
+    
+    // Initialize the 'fmt ' sub-chunk
+    memcpy(wh->fmt, "fmt ", 4);
+    wh->subChunk1Size = 16; // PCM
+    wh->audioFormat = 1;    // PCM format
+    wh->numChannels = 1;
+    wh->sampleRate = 8000;
+    wh->bitsPerSample = bitsPerSample;
+
+    wh->byteRate = wh->sampleRate * wh->numChannels * wh->bitsPerSample / 8;
+    wh->blockAlign = wh->numChannels * wh->bitsPerSample / 8;
+
+    // Initialize the 'data' sub-chunk
+    memcpy(wh->data, "data", 4);
+    wh->dataSize = 0; // Placeholder, should be set later
+}
+
+uint16_t sign (int8_t sample) {
 	//return the sign of the sample: 1 (true) if positive, 0 (false) if negative. 
 	if (sample & 1 << 7) {
 		return 1;
@@ -28,12 +49,13 @@ int8_t sign (int8_t sample) {
 	return 0;
 }
 
-int8_t magnitude (int8_t sample) {
+uint16_t magnitude (int8_t sample) {
 	return sample & 0x7F;
 }
 
-int16_t codeword_expansion (int8_t sample_magnitude, int8_t sign) {
-	int16_t chord, step, codeword_tmp;
+uint16_t codeword_expansion (int16_t sample_magnitude, int16_t sign) {
+	uint16_t chord, step, codeword_tmp;
+	codeword_tmp = 0x0000;
 
 	if (sample_magnitude & (0x7 << 4)) {
 		chord = 0x1 << 12;
@@ -100,51 +122,34 @@ int main(int argc, char *argv[]) {
 	// open the output file for writing
 	FILE *output_file = fopen("decompressed_out.wav", "wb");
 	if (!output_file) {
-		fprintf(stderr, "Error opening output file\n");
+		printf("Error opening output file\n");
 		fclose(file);
 		return 0;
 	}
 
 	// read and modify the WAV file header
-	WAVHeader in_header;
 	WAVHeader out_header;
-
-	fread(&in_header, sizeof(WAVHeader), 1, file);
-	// make a copy of the input header as it will be helpful in reading file
-	out_header = in_header;
-
-	// Check if the input file is a valid WAV file
-	if (memcmp(in_header.riff, "RIFF", 4) != 0 || memcmp(in_header.wave, "WAVE", 4) != 0) {
-		fprintf(stderr, "Invalid WAV file\n");
-		fclose(file);
-		fclose(output_file);
-		return 0;
-	}
-	// alter header fields for compressed data
-	out_header.bitsPerSample = 16;
-	out_header.byteRate = out_header.sampleRate * out_header.numChannels * 2; // this calculation is sampleRate * numChannels * (bitsPerSample / 8) simplfied for 8 bit sample rate
-	out_header.blockAlign = out_header.numChannels * 2; // this calculation is numChannels * bitsPerSample / 8 simplified for 8 bit sample rate
-	out_header.dataSize = out_header.dataSize * 2; //this can be reorganized to remove direct dependancies
-	out_header.chunkSize = 36 + out_header.dataSize;
+	initWAVHeader(&out_header, 16);
 
 	fwrite(&out_header, sizeof(WAVHeader), 1, output_file);
 
-	// reading logic will need to be changed
-	fseek(file, 0, in_header.data);
-	printf("%d", in_header.data);
-	for(int i = 0; i < in_header.dataSize; i++) {
-		int8_t byte = fgetc(file);
-		int8_t sig = sign(byte);
-		int8_t mag = magnitude(byte);
-		//compress
-		int16_t data_point = codeword_expansion(mag, sig);
-		int8_t byte2 = data_point >> 8;
-		int8_t byte1 = data_point & 0xFF;
-		int16_t little_endian_data_point = (byte1 << 8) | byte2;
-		//write to output file
-		// printf("%d\n", output_data_point);
-		fwrite(&little_endian_data_point, sizeof(little_endian_data_point), 1, output_file);
+	fseek(file, 0, SEEK_SET);
+	uint32_t data_size = 0;
+	while(!feof(file)){
+		uint8_t byte = fgetc(file);
+		uint16_t sig = sign(byte);
+		uint16_t mag = magnitude(byte);
+		uint16_t data_point = codeword_expansion(mag, sig);
+		fwrite(&data_point, sizeof(data_point), 1, output_file);
+		data_size++;
 	}
+	//write datasize to header
+	printf("%d", data_size);
+	fseek(output_file, 40, SEEK_SET);
+	fwrite(&data_size, sizeof(data_size), 1, output_file);
+	fseek(output_file, 4, SEEK_SET);
+	data_size += 36;
+	fwrite(&data_size, sizeof(data_size), 1, output_file);
 	fclose(output_file);
 	fclose(file);
 	
