@@ -1,0 +1,1 @@
+1) Halved the number of loop itteration in mu-encode.c 160 000 -> 80 000
