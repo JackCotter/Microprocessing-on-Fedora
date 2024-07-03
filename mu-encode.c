@@ -139,7 +139,7 @@ int main(int argc, char *argv[]) {
 	int byte;
 	fseek(file, 0, in_header.data);
 	printf("%d", in_header.data);
-	for(int i = 0; i < in_header.dataSize; i++) {
+	for(int i = 0; i < (in_header.dataSize/2); i++) {
 		//read 2 bytes 1 byte at a time
 		int16_t byte2 = fgetc(file);
 		int16_t byte1 = fgetc(file);
