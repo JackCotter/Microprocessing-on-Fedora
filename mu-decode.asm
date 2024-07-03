@@ -1,4 +1,4 @@
-	.file	"mu-encode.c"
+	.file	"mu-decode.c"
 	.text
 	.globl	sign
 	.type	sign, @function
@@ -12,8 +12,8 @@ sign:
 	movq	%rsp, %rbp
 	.cfi_def_cfa_register 6
 	movl	%edi, %eax
-	movw	%ax, -4(%rbp)
-	cmpw	$0, -4(%rbp)
+	movb	%al, -4(%rbp)
+	cmpb	$0, -4(%rbp)
 	jns	.L2
 	movl	$1, %eax
 	jmp	.L3
@@ -38,18 +38,18 @@ magnitude:
 	movq	%rsp, %rbp
 	.cfi_def_cfa_register 6
 	movl	%edi, %eax
-	movw	%ax, -4(%rbp)
-	movzwl	-4(%rbp), %eax
-	andw	$32767, %ax
+	movb	%al, -4(%rbp)
+	movzbl	-4(%rbp), %eax
+	andl	$127, %eax
 	popq	%rbp
 	.cfi_def_cfa 7, 8
 	ret
 	.cfi_endproc
 .LFE7:
 	.size	magnitude, .-magnitude
-	.globl	codeword_compression
-	.type	codeword_compression, @function
-codeword_compression:
+	.globl	codeword_expansion
+	.type	codeword_expansion, @function
+codeword_expansion:
 .LFB8:
 	.cfi_startproc
 	endbr64
@@ -60,177 +60,162 @@ codeword_compression:
 	.cfi_def_cfa_register 6
 	movl	%edi, %edx
 	movl	%esi, %eax
-	movw	%dx, -20(%rbp)
-	movw	%ax, -24(%rbp)
-	movb	$0, -5(%rbp)
-	movswl	-20(%rbp), %eax
-	andl	$4096, %eax
-	testl	%eax, %eax
-	je	.L7
-	movw	$7, -4(%rbp)
-	movzwl	-20(%rbp), %eax
-	sarw	$8, %ax
+	movb	%dl, -20(%rbp)
+	movb	%al, -24(%rbp)
+	movsbl	-20(%rbp), %eax
+	andl	$112, %eax
+	cmpl	$112, %eax
+	jne	.L7
+	movw	$4096, -6(%rbp)
+	movsbw	-20(%rbp), %ax
 	andl	$15, %eax
-	movw	%ax, -2(%rbp)
-	movzwl	-24(%rbp), %eax
-	sall	$7, %eax
-	movl	%eax, %edx
-	movzwl	-4(%rbp), %eax
-	sall	$4, %eax
-	orl	%eax, %edx
-	movzwl	-2(%rbp), %eax
+	movw	%ax, -4(%rbp)
+	movsbw	-24(%rbp), %ax
+	sall	$15, %eax
+	movl	%eax, %ecx
+	movswl	-6(%rbp), %eax
+	movswl	-4(%rbp), %edx
+	sall	$8, %edx
 	orl	%edx, %eax
-	movb	%al, -5(%rbp)
-	movzbl	-5(%rbp), %eax
+	sall	$2, %eax
+	orb	$2, %ah
+	orl	%ecx, %eax
+	movw	%ax, -2(%rbp)
+	movzwl	-2(%rbp), %eax
 	jmp	.L8
 .L7:
-	movswl	-20(%rbp), %eax
-	andl	$2048, %eax
-	testl	%eax, %eax
-	je	.L9
-	movw	$6, -4(%rbp)
-	movzwl	-20(%rbp), %eax
-	sarw	$7, %ax
+	movsbl	-20(%rbp), %eax
+	andl	$96, %eax
+	cmpl	$96, %eax
+	jne	.L9
+	movw	$2048, -6(%rbp)
+	movsbw	-20(%rbp), %ax
 	andl	$15, %eax
-	movw	%ax, -2(%rbp)
-	movzwl	-24(%rbp), %eax
-	sall	$7, %eax
-	movl	%eax, %edx
-	movzwl	-4(%rbp), %eax
-	sall	$4, %eax
-	orl	%eax, %edx
-	movzwl	-2(%rbp), %eax
+	movw	%ax, -4(%rbp)
+	movsbw	-24(%rbp), %ax
+	sall	$15, %eax
+	movl	%eax, %ecx
+	movswl	-6(%rbp), %eax
+	movswl	-4(%rbp), %edx
+	sall	$7, %edx
 	orl	%edx, %eax
-	movb	%al, -5(%rbp)
-	movzbl	-5(%rbp), %eax
+	sall	$2, %eax
+	orb	$1, %ah
+	orl	%ecx, %eax
+	movw	%ax, -2(%rbp)
+	movzwl	-2(%rbp), %eax
 	jmp	.L8
 .L9:
-	movswl	-20(%rbp), %eax
-	andl	$1024, %eax
-	testl	%eax, %eax
-	je	.L10
-	movw	$5, -4(%rbp)
-	movzwl	-20(%rbp), %eax
-	sarw	$6, %ax
+	movsbl	-20(%rbp), %eax
+	andl	$80, %eax
+	cmpl	$80, %eax
+	jne	.L10
+	movw	$1024, -6(%rbp)
+	movsbw	-20(%rbp), %ax
 	andl	$15, %eax
-	movw	%ax, -2(%rbp)
-	movzwl	-24(%rbp), %eax
-	sall	$7, %eax
-	movl	%eax, %edx
-	movzwl	-4(%rbp), %eax
-	sall	$4, %eax
-	orl	%eax, %edx
-	movzwl	-2(%rbp), %eax
+	movw	%ax, -4(%rbp)
+	movsbw	-24(%rbp), %ax
+	sall	$15, %eax
+	movl	%eax, %ecx
+	movswl	-6(%rbp), %eax
+	movswl	-4(%rbp), %edx
+	sall	$6, %edx
 	orl	%edx, %eax
-	movb	%al, -5(%rbp)
-	movzbl	-5(%rbp), %eax
+	sall	$2, %eax
+	orb	$-128, %al
+	orl	%ecx, %eax
+	movw	%ax, -2(%rbp)
+	movzwl	-2(%rbp), %eax
 	jmp	.L8
 .L10:
-	movswl	-20(%rbp), %eax
-	andl	$512, %eax
-	testl	%eax, %eax
-	je	.L11
-	movw	$4, -4(%rbp)
-	movzwl	-20(%rbp), %eax
-	sarw	$5, %ax
-	andl	$15, %eax
-	movw	%ax, -2(%rbp)
-	movzwl	-24(%rbp), %eax
-	sall	$7, %eax
-	movl	%eax, %edx
-	movzwl	-4(%rbp), %eax
-	sall	$4, %eax
-	orl	%eax, %edx
-	movzwl	-2(%rbp), %eax
-	orl	%edx, %eax
-	movb	%al, -5(%rbp)
-	movzbl	-5(%rbp), %eax
-	jmp	.L8
-.L11:
-	movswl	-20(%rbp), %eax
-	andl	$256, %eax
-	testl	%eax, %eax
-	je	.L12
-	movw	$3, -4(%rbp)
-	movzwl	-20(%rbp), %eax
-	sarw	$4, %ax
-	andl	$15, %eax
-	movw	%ax, -2(%rbp)
-	movzwl	-24(%rbp), %eax
-	sall	$7, %eax
-	movl	%eax, %edx
-	movzwl	-4(%rbp), %eax
-	sall	$4, %eax
-	orl	%eax, %edx
-	movzwl	-2(%rbp), %eax
-	orl	%edx, %eax
-	movb	%al, -5(%rbp)
-	movzbl	-5(%rbp), %eax
-	jmp	.L8
-.L12:
-	movswl	-20(%rbp), %eax
-	andl	$128, %eax
-	testl	%eax, %eax
-	je	.L13
-	movw	$2, -4(%rbp)
-	movzwl	-20(%rbp), %eax
-	sarw	$3, %ax
-	andl	$15, %eax
-	movw	%ax, -2(%rbp)
-	movzwl	-24(%rbp), %eax
-	sall	$7, %eax
-	movl	%eax, %edx
-	movzwl	-4(%rbp), %eax
-	sall	$4, %eax
-	orl	%eax, %edx
-	movzwl	-2(%rbp), %eax
-	orl	%edx, %eax
-	movb	%al, -5(%rbp)
-	movzbl	-5(%rbp), %eax
-	jmp	.L8
-.L13:
-	movswl	-20(%rbp), %eax
+	movsbl	-20(%rbp), %eax
 	andl	$64, %eax
 	testl	%eax, %eax
-	je	.L14
-	movw	$1, -4(%rbp)
-	movzwl	-20(%rbp), %eax
-	sarw	$2, %ax
+	je	.L11
+	movw	$512, -6(%rbp)
+	movsbw	-20(%rbp), %ax
 	andl	$15, %eax
-	movw	%ax, -2(%rbp)
-	movzwl	-24(%rbp), %eax
-	sall	$7, %eax
-	movl	%eax, %edx
-	movzwl	-4(%rbp), %eax
-	sall	$4, %eax
-	orl	%eax, %edx
-	movzwl	-2(%rbp), %eax
+	movw	%ax, -4(%rbp)
+	movsbw	-24(%rbp), %ax
+	sall	$15, %eax
+	movl	%eax, %ecx
+	movswl	-6(%rbp), %eax
+	movswl	-4(%rbp), %edx
+	sall	$5, %edx
 	orl	%edx, %eax
-	movb	%al, -5(%rbp)
-	movzbl	-5(%rbp), %eax
+	sall	$2, %eax
+	orl	$64, %eax
+	orl	%ecx, %eax
+	movw	%ax, -2(%rbp)
+	movzwl	-2(%rbp), %eax
 	jmp	.L8
-.L14:
-	movswl	-20(%rbp), %eax
+.L11:
+	movsbl	-20(%rbp), %eax
+	andl	$48, %eax
+	cmpl	$48, %eax
+	jne	.L12
+	movw	$256, -6(%rbp)
+	movsbw	-20(%rbp), %ax
+	andl	$15, %eax
+	movw	%ax, -4(%rbp)
+	movsbw	-24(%rbp), %ax
+	sall	$15, %eax
+	movl	%eax, %ecx
+	movswl	-6(%rbp), %eax
+	movswl	-4(%rbp), %edx
+	sall	$4, %edx
+	orl	%edx, %eax
+	sall	$2, %eax
+	orl	$32, %eax
+	orl	%ecx, %eax
+	movw	%ax, -2(%rbp)
+	movzwl	-2(%rbp), %eax
+	jmp	.L8
+.L12:
+	movsbl	-20(%rbp), %eax
 	andl	$32, %eax
 	testl	%eax, %eax
-	je	.L15
-	movw	$0, -4(%rbp)
-	movzwl	-20(%rbp), %eax
-	sarw	%ax
+	je	.L13
+	movw	$128, -6(%rbp)
+	movsbw	-20(%rbp), %ax
 	andl	$15, %eax
-	movw	%ax, -2(%rbp)
-	movzwl	-24(%rbp), %eax
-	sall	$7, %eax
-	movl	%eax, %edx
-	movzwl	-4(%rbp), %eax
-	sall	$4, %eax
-	orl	%eax, %edx
-	movzwl	-2(%rbp), %eax
+	movw	%ax, -4(%rbp)
+	movsbw	-24(%rbp), %ax
+	sall	$15, %eax
+	movl	%eax, %ecx
+	movswl	-6(%rbp), %eax
+	movswl	-4(%rbp), %edx
+	sall	$3, %edx
 	orl	%edx, %eax
-	movb	%al, -5(%rbp)
-	movzbl	-5(%rbp), %eax
+	sall	$2, %eax
+	orl	$16, %eax
+	orl	%ecx, %eax
+	movw	%ax, -2(%rbp)
+	movzwl	-2(%rbp), %eax
 	jmp	.L8
-.L15:
+.L13:
+	movsbl	-20(%rbp), %eax
+	andl	$16, %eax
+	testl	%eax, %eax
+	je	.L14
+	movw	$64, -6(%rbp)
+	movsbw	-20(%rbp), %ax
+	andl	$15, %eax
+	movw	%ax, -4(%rbp)
+	movsbw	-24(%rbp), %ax
+	sall	$15, %eax
+	movl	%eax, %ecx
+	movswl	-6(%rbp), %eax
+	movswl	-4(%rbp), %edx
+	sall	$2, %edx
+	orl	%edx, %eax
+	sall	$2, %eax
+	orl	$8, %eax
+	orl	%ecx, %eax
+	movw	%ax, -2(%rbp)
+	movzwl	-2(%rbp), %eax
+	jmp	.L8
+.L14:
 	movl	$0, %eax
 .L8:
 	popq	%rbp
@@ -238,7 +223,7 @@ codeword_compression:
 	ret
 	.cfi_endproc
 .LFE8:
-	.size	codeword_compression, .-codeword_compression
+	.size	codeword_expansion, .-codeword_expansion
 	.section	.rodata
 .LC0:
 	.string	"Usage: %s <path/to/wav/file>"
@@ -249,7 +234,7 @@ codeword_compression:
 .LC3:
 	.string	"wb"
 .LC4:
-	.string	"out.wav"
+	.string	"decompressed_out.wav"
 .LC5:
 	.string	"Error opening output file\n"
 .LC6:
@@ -272,15 +257,15 @@ main:
 	.cfi_offset 6, -16
 	movq	%rsp, %rbp
 	.cfi_def_cfa_register 6
-	subq	$176, %rsp
-	movl	%edi, -164(%rbp)
-	movq	%rsi, -176(%rbp)
+	subq	$160, %rsp
+	movl	%edi, -148(%rbp)
+	movq	%rsi, -160(%rbp)
 	movq	%fs:40, %rax
 	movq	%rax, -8(%rbp)
 	xorl	%eax, %eax
-	cmpl	$2, -164(%rbp)
-	je	.L17
-	movq	-176(%rbp), %rax
+	cmpl	$2, -148(%rbp)
+	je	.L16
+	movq	-160(%rbp), %rax
 	movq	(%rax), %rax
 	movq	%rax, %rsi
 	leaq	.LC0(%rip), %rax
@@ -288,9 +273,9 @@ main:
 	movl	$0, %eax
 	call	printf@PLT
 	movl	$1, %eax
-	jmp	.L25
-.L17:
-	movq	-176(%rbp), %rax
+	jmp	.L24
+.L16:
+	movq	-160(%rbp), %rax
 	addq	$8, %rax
 	movq	(%rax), %rax
 	leaq	.LC1(%rip), %rdx
@@ -299,12 +284,12 @@ main:
 	call	fopen@PLT
 	movq	%rax, -128(%rbp)
 	cmpq	$0, -128(%rbp)
-	jne	.L19
+	jne	.L18
 	leaq	.LC2(%rip), %rax
 	movq	%rax, %rdi
 	movl	$0, %eax
 	call	printf@PLT
-.L19:
+.L18:
 	leaq	.LC3(%rip), %rax
 	movq	%rax, %rsi
 	leaq	.LC4(%rip), %rax
@@ -312,7 +297,7 @@ main:
 	call	fopen@PLT
 	movq	%rax, -120(%rbp)
 	cmpq	$0, -120(%rbp)
-	jne	.L20
+	jne	.L19
 	movq	stderr(%rip), %rax
 	movq	%rax, %rcx
 	movl	$26, %edx
@@ -324,8 +309,8 @@ main:
 	movq	%rax, %rdi
 	call	fclose@PLT
 	movl	$0, %eax
-	jmp	.L25
-.L20:
+	jmp	.L24
+.L19:
 	movq	-128(%rbp), %rdx
 	leaq	-112(%rbp), %rax
 	movq	%rdx, %rcx
@@ -352,7 +337,7 @@ main:
 	movq	%rax, %rdi
 	call	memcmp@PLT
 	testl	%eax, %eax
-	jne	.L21
+	jne	.L20
 	leaq	-112(%rbp), %rax
 	addq	$8, %rax
 	movl	$4, %edx
@@ -361,8 +346,8 @@ main:
 	movq	%rax, %rdi
 	call	memcmp@PLT
 	testl	%eax, %eax
-	je	.L22
-.L21:
+	je	.L21
+.L20:
 	movq	stderr(%rip), %rax
 	movq	%rax, %rcx
 	movl	$17, %edx
@@ -377,18 +362,20 @@ main:
 	movq	%rax, %rdi
 	call	fclose@PLT
 	movl	$0, %eax
-	jmp	.L25
-.L22:
-	movw	$8, -30(%rbp)
+	jmp	.L24
+.L21:
+	movw	$16, -30(%rbp)
 	movl	-40(%rbp), %edx
 	movzwl	-42(%rbp), %eax
 	movzwl	%ax, %eax
 	imull	%edx, %eax
+	addl	%eax, %eax
 	movl	%eax, -36(%rbp)
 	movzwl	-42(%rbp), %eax
+	addl	%eax, %eax
 	movw	%ax, -32(%rbp)
 	movl	-24(%rbp), %eax
-	shrl	%eax
+	addl	%eax, %eax
 	movl	%eax, -24(%rbp)
 	movl	-24(%rbp), %eax
 	addl	$36, %eax
@@ -400,8 +387,6 @@ main:
 	movl	$44, %esi
 	movq	%rax, %rdi
 	call	fwrite@PLT
-	movl	$0, -136(%rbp)
-	movl	$0, -132(%rbp)
 	movl	-76(%rbp), %eax
 	movl	%eax, %edx
 	movq	-128(%rbp), %rax
@@ -414,57 +399,40 @@ main:
 	movq	%rax, %rdi
 	movl	$0, %eax
 	call	printf@PLT
-	movl	$0, -140(%rbp)
-	jmp	.L23
-.L24:
+	movl	$0, -132(%rbp)
+	jmp	.L22
+.L23:
 	movq	-128(%rbp), %rax
 	movq	%rax, %rdi
 	call	fgetc@PLT
-	movw	%ax, -150(%rbp)
-	movq	-128(%rbp), %rax
-	movq	%rax, %rdi
-	call	fgetc@PLT
-	movw	%ax, -148(%rbp)
-	movzwl	-148(%rbp), %eax
-	sall	$8, %eax
-	andw	$-32768, %ax
-	movl	%eax, %edx
-	movzwl	-148(%rbp), %eax
-	sall	$6, %eax
-	andw	$8128, %ax
-	orl	%eax, %edx
-	movzwl	-150(%rbp), %eax
-	sarw	$2, %ax
-	orl	%edx, %eax
-	movw	%ax, -146(%rbp)
-	movswl	-146(%rbp), %eax
+	movb	%al, -137(%rbp)
+	movsbl	-137(%rbp), %eax
 	movl	%eax, %edi
 	call	sign
-	movw	%ax, -144(%rbp)
-	movswl	-146(%rbp), %eax
+	movb	%al, -136(%rbp)
+	movsbl	-137(%rbp), %eax
 	movl	%eax, %edi
 	call	magnitude
-	movw	%ax, -142(%rbp)
-	movswl	-144(%rbp), %edx
-	movswl	-142(%rbp), %eax
+	movb	%al, -135(%rbp)
+	movsbl	-136(%rbp), %edx
+	movsbl	-135(%rbp), %eax
 	movl	%edx, %esi
 	movl	%eax, %edi
-	call	codeword_compression
-	movb	%al, -151(%rbp)
+	call	codeword_expansion
+	movw	%ax, -134(%rbp)
 	movq	-120(%rbp), %rdx
-	leaq	-151(%rbp), %rax
+	leaq	-134(%rbp), %rax
 	movq	%rdx, %rcx
 	movl	$1, %edx
-	movl	$1, %esi
+	movl	$2, %esi
 	movq	%rax, %rdi
 	call	fwrite@PLT
-	addl	$1, -140(%rbp)
-.L23:
+	addl	$1, -132(%rbp)
+.L22:
 	movl	-72(%rbp), %eax
-	shrl	%eax
-	movl	-140(%rbp), %edx
+	movl	-132(%rbp), %edx
 	cmpl	%eax, %edx
-	jb	.L24
+	jb	.L23
 	movq	-120(%rbp), %rax
 	movq	%rax, %rdi
 	call	fclose@PLT
@@ -472,12 +440,12 @@ main:
 	movq	%rax, %rdi
 	call	fclose@PLT
 	movl	$0, %eax
-.L25:
+.L24:
 	movq	-8(%rbp), %rdx
 	subq	%fs:40, %rdx
-	je	.L26
+	je	.L25
 	call	__stack_chk_fail@PLT
-.L26:
+.L25:
 	leave
 	.cfi_def_cfa 7, 8
 	ret
