@@ -134,6 +134,8 @@ int main(int argc, char *argv[]) {
 	printf("%d", in_header.data);
 	for(int i = 0; i < in_header.dataSize; i++) {
 		int8_t byte = fgetc(file);
+		printf("codeword: %x\n", byte & 0xFF);
+
 		int8_t sig = sign(byte);
 		int8_t mag = magnitude(byte);
 		//compress
@@ -142,7 +144,7 @@ int main(int argc, char *argv[]) {
 		int8_t byte1 = data_point & 0xFF;
 		int16_t little_endian_data_point = (byte1 << 8) | byte2;
 		//write to output file
-		// printf("%d\n", output_data_point);
+		printf("expanded: %x\n\n", data_point & 0xFFFF);
 		fwrite(&little_endian_data_point, sizeof(little_endian_data_point), 1, output_file);
 	}
 	fclose(output_file);

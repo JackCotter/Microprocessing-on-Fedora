@@ -153,7 +153,7 @@ int main(int argc, char *argv[]) {
 		int8_t output_data_point = codeword_compression(mag, sig);
 		//write to output file
 		printf("%x\n", output_data_point & 0xFF);
-		fwrite(&data_point, sizeof(data_point), 1, output_file);
+		fwrite(&output_data_point, sizeof(output_data_point), 1, output_file);
 	}
 	fclose(output_file);
 	fclose(file);
