@@ -35,43 +35,43 @@ int8_t magnitude (int8_t sample) {
 int16_t codeword_expansion (int8_t sample_magnitude, int8_t sign) {
 	int16_t chord, step, codeword_tmp;
 
-	if (sample_magnitude & (0x7 << 4)) {
+	if ((sample_magnitude & (0x7 << 4)) == 0x70) {
 		chord = 0x1 << 12;
 		step = (sample_magnitude & 0xF);
 	       	codeword_tmp = (sign << 15) | (chord | step << 8 | 0x1 << 7) << 2;
 	       	return (int16_t) codeword_tmp;
 	}
-	if (sample_magnitude & (0x6 << 4)) {
+	if ((sample_magnitude & (0x6 << 4)) == 0x60) {
 		chord = 0x1 << 11;
 		step = (sample_magnitude & 0xF);
 	       	codeword_tmp = (sign << 15) | (chord | step << 7 | 0x1 << 6) << 2;
 	       	return (int16_t) codeword_tmp;
 	} 
-	if (sample_magnitude & (0x5 << 4)) {
+	if ((sample_magnitude & (0x5 << 4)) == 0x50) {
 		chord = 0x1 << 10;
 		step = (sample_magnitude & 0xF);
 	       	codeword_tmp = (sign << 15) | (chord | step << 6 | 0x1 << 5) << 2;
 	       	return (int16_t) codeword_tmp;
 	} 
-	if (sample_magnitude & (0x4 << 4)) {
+	if ((sample_magnitude & (0x4 << 4)) == 0x40) {
 		chord = 0x1 << 9;
 		step = (sample_magnitude & 0xF);
 	       	codeword_tmp = (sign << 15) | (chord | step << 5 | 0x1 << 4) << 2;
 	       	return (int16_t) codeword_tmp;
 	}
-	if (sample_magnitude & (0x3 << 4)) {
+	if ((sample_magnitude & (0x3 << 4)) == 0x30) {
 		chord = 0x1 << 8;
 		step = (sample_magnitude & 0xF);
 	       	codeword_tmp = (sign << 15) | (chord | step << 4 | 0x1 << 3) << 2;
 	       	return (int16_t) codeword_tmp;
 	}
-	if (sample_magnitude & (0x2 << 4)) {
+	if ((sample_magnitude & (0x2 << 4)) == 0x20) {
 		chord = 0x1 << 7;
 		step = (sample_magnitude & 0xF);
 	       	codeword_tmp = (sign << 15) | (chord | step << 3 | 0x1 << 2) << 2;
 	       	return (int16_t) codeword_tmp;
 	}
-	if (sample_magnitude & (0x1 << 4)) {
+	if ((sample_magnitude & (0x1 << 4)) == 0x10) {
 		chord = 0x1 << 6;
 		step = (sample_magnitude & 0xF);
 	       	codeword_tmp = (sign << 15) | (chord | step << 2 | 0x1 << 1) << 2;
@@ -134,18 +134,16 @@ int main(int argc, char *argv[]) {
 	printf("%d", in_header.data);
 	for(int i = 0; i < in_header.dataSize; i++) {
 		int8_t byte = fgetc(file);
-		printf("codeword: %x\n", byte & 0xFF);
+		// printf("codeword: %x\n", byte & 0xFF);
 
 		int8_t sig = sign(byte);
 		int8_t mag = magnitude(byte);
+		// printf("sign: %x mag: %x\n", (sig & 0xFF), (mag & 0xFF));
 		//compress
 		int16_t data_point = codeword_expansion(mag, sig);
-		int8_t byte2 = data_point >> 8;
-		int8_t byte1 = data_point & 0xFF;
-		int16_t little_endian_data_point = (byte1 << 8) | byte2;
+		// printf("expanded: %x\n\n", data_point & 0xFFFF);
 		//write to output file
-		printf("expanded: %x\n\n", data_point & 0xFFFF);
-		fwrite(&little_endian_data_point, sizeof(little_endian_data_point), 1, output_file);
+		fwrite(&data_point, sizeof(data_point), 1, output_file);
 	}
 	fclose(output_file);
 	fclose(file);
