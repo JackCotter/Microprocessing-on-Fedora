@@ -1,504 +1,553 @@
+	.arch armv7-a
+	.eabi_attribute 28, 1
+	.eabi_attribute 20, 1
+	.eabi_attribute 21, 1
+	.eabi_attribute 23, 3
+	.eabi_attribute 24, 1
+	.eabi_attribute 25, 1
+	.eabi_attribute 26, 2
+	.eabi_attribute 30, 6
+	.eabi_attribute 34, 1
+	.eabi_attribute 18, 4
 	.file	"mu-encode.c"
 	.text
-	.globl	sign
-	.type	sign, @function
+	.align	2
+	.global	sign
+	.arch armv7-a
+	.syntax unified
+	.arm
+	.fpu vfpv3-d16
+	.type	sign, %function
 sign:
-.LFB6:
-	.cfi_startproc
-	endbr64
-	pushq	%rbp
-	.cfi_def_cfa_offset 16
-	.cfi_offset 6, -16
-	movq	%rsp, %rbp
-	.cfi_def_cfa_register 6
-	movl	%edi, %eax
-	movw	%ax, -4(%rbp)
-	cmpw	$0, -4(%rbp)
-	jns	.L2
-	movl	$1, %eax
-	jmp	.L3
+	@ args = 0, pretend = 0, frame = 8
+	@ frame_needed = 1, uses_anonymous_args = 0
+	@ link register save eliminated.
+	str	fp, [sp, #-4]!
+	add	fp, sp, #0
+	sub	sp, sp, #12
+	mov	r3, r0
+	strh	r3, [fp, #-6]	@ movhi
+	ldrsh	r3, [fp, #-6]
+	cmp	r3, #0
+	bge	.L2
+	mov	r3, #1
+	b	.L3
 .L2:
-	movl	$0, %eax
+	mov	r3, #0
 .L3:
-	popq	%rbp
-	.cfi_def_cfa 7, 8
-	ret
-	.cfi_endproc
-.LFE6:
+	mov	r0, r3
+	add	sp, fp, #0
+	@ sp needed
+	ldr	fp, [sp], #4
+	bx	lr
 	.size	sign, .-sign
-	.globl	magnitude
-	.type	magnitude, @function
+	.align	2
+	.global	magnitude
+	.syntax unified
+	.arm
+	.fpu vfpv3-d16
+	.type	magnitude, %function
 magnitude:
-.LFB7:
-	.cfi_startproc
-	endbr64
-	pushq	%rbp
-	.cfi_def_cfa_offset 16
-	.cfi_offset 6, -16
-	movq	%rsp, %rbp
-	.cfi_def_cfa_register 6
-	movl	%edi, %eax
-	movw	%ax, -4(%rbp)
-	movzwl	-4(%rbp), %eax
-	andw	$32767, %ax
-	popq	%rbp
-	.cfi_def_cfa 7, 8
-	ret
-	.cfi_endproc
-.LFE7:
+	@ args = 0, pretend = 0, frame = 8
+	@ frame_needed = 1, uses_anonymous_args = 0
+	@ link register save eliminated.
+	str	fp, [sp, #-4]!
+	add	fp, sp, #0
+	sub	sp, sp, #12
+	mov	r3, r0
+	strh	r3, [fp, #-6]	@ movhi
+	ldrh	r3, [fp, #-6]	@ movhi
+	ubfx	r3, r3, #0, #15
+	sxth	r3, r3
+	mov	r0, r3
+	add	sp, fp, #0
+	@ sp needed
+	ldr	fp, [sp], #4
+	bx	lr
 	.size	magnitude, .-magnitude
-	.globl	codeword_compression
-	.type	codeword_compression, @function
+	.align	2
+	.global	codeword_compression
+	.syntax unified
+	.arm
+	.fpu vfpv3-d16
+	.type	codeword_compression, %function
 codeword_compression:
-.LFB8:
-	.cfi_startproc
-	endbr64
-	pushq	%rbp
-	.cfi_def_cfa_offset 16
-	.cfi_offset 6, -16
-	movq	%rsp, %rbp
-	.cfi_def_cfa_register 6
-	movl	%edi, %edx
-	movl	%esi, %eax
-	movw	%dx, -20(%rbp)
-	movw	%ax, -24(%rbp)
-	movb	$0, -5(%rbp)
-	movswl	-20(%rbp), %eax
-	andl	$4096, %eax
-	testl	%eax, %eax
-	je	.L7
-	movw	$7, -4(%rbp)
-	movzwl	-20(%rbp), %eax
-	sarw	$8, %ax
-	andl	$15, %eax
-	movw	%ax, -2(%rbp)
-	movzwl	-24(%rbp), %eax
-	sall	$7, %eax
-	movl	%eax, %edx
-	movzwl	-4(%rbp), %eax
-	sall	$4, %eax
-	orl	%eax, %edx
-	movzwl	-2(%rbp), %eax
-	orl	%edx, %eax
-	movb	%al, -5(%rbp)
-	movzbl	-5(%rbp), %eax
-	jmp	.L8
+	@ args = 0, pretend = 0, frame = 16
+	@ frame_needed = 1, uses_anonymous_args = 0
+	@ link register save eliminated.
+	str	fp, [sp, #-4]!
+	add	fp, sp, #0
+	sub	sp, sp, #20
+	mov	r3, r0
+	mov	r2, r1
+	strh	r3, [fp, #-14]	@ movhi
+	mov	r3, r2	@ movhi
+	strh	r3, [fp, #-16]	@ movhi
+	mov	r3, #0
+	strb	r3, [fp, #-5]
+	ldrh	r3, [fp, #-14]
+	and	r3, r3, #4096
+	cmp	r3, #0
+	beq	.L7
+	mov	r3, #7
+	strh	r3, [fp, #-8]	@ movhi
+	ldrsh	r3, [fp, #-14]
+	asr	r3, r3, #8
+	sxth	r3, r3
+	and	r3, r3, #15
+	strh	r3, [fp, #-10]	@ movhi
+	ldrsh	r3, [fp, #-16]
+	lsl	r3, r3, #7
+	sxtb	r2, r3
+	ldrsh	r3, [fp, #-8]
+	lsl	r3, r3, #4
+	sxtb	r3, r3
+	orr	r3, r2, r3
+	sxtb	r2, r3
+	ldrh	r3, [fp, #-10]	@ movhi
+	sxtb	r3, r3
+	orr	r3, r2, r3
+	strb	r3, [fp, #-5]
+	ldrsb	r3, [fp, #-5]
+	b	.L8
 .L7:
-	movswl	-20(%rbp), %eax
-	andl	$2048, %eax
-	testl	%eax, %eax
-	je	.L9
-	movw	$6, -4(%rbp)
-	movzwl	-20(%rbp), %eax
-	sarw	$7, %ax
-	andl	$15, %eax
-	movw	%ax, -2(%rbp)
-	movzwl	-24(%rbp), %eax
-	sall	$7, %eax
-	movl	%eax, %edx
-	movzwl	-4(%rbp), %eax
-	sall	$4, %eax
-	orl	%eax, %edx
-	movzwl	-2(%rbp), %eax
-	orl	%edx, %eax
-	movb	%al, -5(%rbp)
-	movzbl	-5(%rbp), %eax
-	jmp	.L8
+	ldrh	r3, [fp, #-14]
+	and	r3, r3, #2048
+	cmp	r3, #0
+	beq	.L9
+	mov	r3, #6
+	strh	r3, [fp, #-8]	@ movhi
+	ldrsh	r3, [fp, #-14]
+	asr	r3, r3, #7
+	sxth	r3, r3
+	and	r3, r3, #15
+	strh	r3, [fp, #-10]	@ movhi
+	ldrsh	r3, [fp, #-16]
+	lsl	r3, r3, #7
+	sxtb	r2, r3
+	ldrsh	r3, [fp, #-8]
+	lsl	r3, r3, #4
+	sxtb	r3, r3
+	orr	r3, r2, r3
+	sxtb	r2, r3
+	ldrh	r3, [fp, #-10]	@ movhi
+	sxtb	r3, r3
+	orr	r3, r2, r3
+	strb	r3, [fp, #-5]
+	ldrsb	r3, [fp, #-5]
+	b	.L8
 .L9:
-	movswl	-20(%rbp), %eax
-	andl	$1024, %eax
-	testl	%eax, %eax
-	je	.L10
-	movw	$5, -4(%rbp)
-	movzwl	-20(%rbp), %eax
-	sarw	$6, %ax
-	andl	$15, %eax
-	movw	%ax, -2(%rbp)
-	movzwl	-24(%rbp), %eax
-	sall	$7, %eax
-	movl	%eax, %edx
-	movzwl	-4(%rbp), %eax
-	sall	$4, %eax
-	orl	%eax, %edx
-	movzwl	-2(%rbp), %eax
-	orl	%edx, %eax
-	movb	%al, -5(%rbp)
-	movzbl	-5(%rbp), %eax
-	jmp	.L8
+	ldrh	r3, [fp, #-14]
+	and	r3, r3, #1024
+	cmp	r3, #0
+	beq	.L10
+	mov	r3, #5
+	strh	r3, [fp, #-8]	@ movhi
+	ldrsh	r3, [fp, #-14]
+	asr	r3, r3, #6
+	sxth	r3, r3
+	and	r3, r3, #15
+	strh	r3, [fp, #-10]	@ movhi
+	ldrsh	r3, [fp, #-16]
+	lsl	r3, r3, #7
+	sxtb	r2, r3
+	ldrsh	r3, [fp, #-8]
+	lsl	r3, r3, #4
+	sxtb	r3, r3
+	orr	r3, r2, r3
+	sxtb	r2, r3
+	ldrh	r3, [fp, #-10]	@ movhi
+	sxtb	r3, r3
+	orr	r3, r2, r3
+	strb	r3, [fp, #-5]
+	ldrsb	r3, [fp, #-5]
+	b	.L8
 .L10:
-	movswl	-20(%rbp), %eax
-	andl	$512, %eax
-	testl	%eax, %eax
-	je	.L11
-	movw	$4, -4(%rbp)
-	movzwl	-20(%rbp), %eax
-	sarw	$5, %ax
-	andl	$15, %eax
-	movw	%ax, -2(%rbp)
-	movzwl	-24(%rbp), %eax
-	sall	$7, %eax
-	movl	%eax, %edx
-	movzwl	-4(%rbp), %eax
-	sall	$4, %eax
-	orl	%eax, %edx
-	movzwl	-2(%rbp), %eax
-	orl	%edx, %eax
-	movb	%al, -5(%rbp)
-	movzbl	-5(%rbp), %eax
-	jmp	.L8
+	ldrh	r3, [fp, #-14]
+	and	r3, r3, #512
+	cmp	r3, #0
+	beq	.L11
+	mov	r3, #4
+	strh	r3, [fp, #-8]	@ movhi
+	ldrsh	r3, [fp, #-14]
+	asr	r3, r3, #5
+	sxth	r3, r3
+	and	r3, r3, #15
+	strh	r3, [fp, #-10]	@ movhi
+	ldrsh	r3, [fp, #-16]
+	lsl	r3, r3, #7
+	sxtb	r2, r3
+	ldrsh	r3, [fp, #-8]
+	lsl	r3, r3, #4
+	sxtb	r3, r3
+	orr	r3, r2, r3
+	sxtb	r2, r3
+	ldrh	r3, [fp, #-10]	@ movhi
+	sxtb	r3, r3
+	orr	r3, r2, r3
+	strb	r3, [fp, #-5]
+	ldrsb	r3, [fp, #-5]
+	b	.L8
 .L11:
-	movswl	-20(%rbp), %eax
-	andl	$256, %eax
-	testl	%eax, %eax
-	je	.L12
-	movw	$3, -4(%rbp)
-	movzwl	-20(%rbp), %eax
-	sarw	$4, %ax
-	andl	$15, %eax
-	movw	%ax, -2(%rbp)
-	movzwl	-24(%rbp), %eax
-	sall	$7, %eax
-	movl	%eax, %edx
-	movzwl	-4(%rbp), %eax
-	sall	$4, %eax
-	orl	%eax, %edx
-	movzwl	-2(%rbp), %eax
-	orl	%edx, %eax
-	movb	%al, -5(%rbp)
-	movzbl	-5(%rbp), %eax
-	jmp	.L8
+	ldrh	r3, [fp, #-14]
+	and	r3, r3, #256
+	cmp	r3, #0
+	beq	.L12
+	mov	r3, #3
+	strh	r3, [fp, #-8]	@ movhi
+	ldrsh	r3, [fp, #-14]
+	asr	r3, r3, #4
+	sxth	r3, r3
+	and	r3, r3, #15
+	strh	r3, [fp, #-10]	@ movhi
+	ldrsh	r3, [fp, #-16]
+	lsl	r3, r3, #7
+	sxtb	r2, r3
+	ldrsh	r3, [fp, #-8]
+	lsl	r3, r3, #4
+	sxtb	r3, r3
+	orr	r3, r2, r3
+	sxtb	r2, r3
+	ldrh	r3, [fp, #-10]	@ movhi
+	sxtb	r3, r3
+	orr	r3, r2, r3
+	strb	r3, [fp, #-5]
+	ldrsb	r3, [fp, #-5]
+	b	.L8
 .L12:
-	movswl	-20(%rbp), %eax
-	andl	$128, %eax
-	testl	%eax, %eax
-	je	.L13
-	movw	$2, -4(%rbp)
-	movzwl	-20(%rbp), %eax
-	sarw	$3, %ax
-	andl	$15, %eax
-	movw	%ax, -2(%rbp)
-	movzwl	-24(%rbp), %eax
-	sall	$7, %eax
-	movl	%eax, %edx
-	movzwl	-4(%rbp), %eax
-	sall	$4, %eax
-	orl	%eax, %edx
-	movzwl	-2(%rbp), %eax
-	orl	%edx, %eax
-	movb	%al, -5(%rbp)
-	movzbl	-5(%rbp), %eax
-	jmp	.L8
+	ldrh	r3, [fp, #-14]
+	and	r3, r3, #128
+	cmp	r3, #0
+	beq	.L13
+	mov	r3, #2
+	strh	r3, [fp, #-8]	@ movhi
+	ldrsh	r3, [fp, #-14]
+	asr	r3, r3, #3
+	sxth	r3, r3
+	and	r3, r3, #15
+	strh	r3, [fp, #-10]	@ movhi
+	ldrsh	r3, [fp, #-16]
+	lsl	r3, r3, #7
+	sxtb	r2, r3
+	ldrsh	r3, [fp, #-8]
+	lsl	r3, r3, #4
+	sxtb	r3, r3
+	orr	r3, r2, r3
+	sxtb	r2, r3
+	ldrh	r3, [fp, #-10]	@ movhi
+	sxtb	r3, r3
+	orr	r3, r2, r3
+	strb	r3, [fp, #-5]
+	ldrsb	r3, [fp, #-5]
+	b	.L8
 .L13:
-	movswl	-20(%rbp), %eax
-	andl	$64, %eax
-	testl	%eax, %eax
-	je	.L14
-	movw	$1, -4(%rbp)
-	movzwl	-20(%rbp), %eax
-	sarw	$2, %ax
-	andl	$15, %eax
-	movw	%ax, -2(%rbp)
-	movzwl	-24(%rbp), %eax
-	sall	$7, %eax
-	movl	%eax, %edx
-	movzwl	-4(%rbp), %eax
-	sall	$4, %eax
-	orl	%eax, %edx
-	movzwl	-2(%rbp), %eax
-	orl	%edx, %eax
-	movb	%al, -5(%rbp)
-	movzbl	-5(%rbp), %eax
-	jmp	.L8
+	ldrh	r3, [fp, #-14]
+	and	r3, r3, #64
+	cmp	r3, #0
+	beq	.L14
+	mov	r3, #1
+	strh	r3, [fp, #-8]	@ movhi
+	ldrsh	r3, [fp, #-14]
+	asr	r3, r3, #2
+	sxth	r3, r3
+	and	r3, r3, #15
+	strh	r3, [fp, #-10]	@ movhi
+	ldrsh	r3, [fp, #-16]
+	lsl	r3, r3, #7
+	sxtb	r2, r3
+	ldrsh	r3, [fp, #-8]
+	lsl	r3, r3, #4
+	sxtb	r3, r3
+	orr	r3, r2, r3
+	sxtb	r2, r3
+	ldrh	r3, [fp, #-10]	@ movhi
+	sxtb	r3, r3
+	orr	r3, r2, r3
+	strb	r3, [fp, #-5]
+	ldrsb	r3, [fp, #-5]
+	b	.L8
 .L14:
-	movswl	-20(%rbp), %eax
-	andl	$32, %eax
-	testl	%eax, %eax
-	je	.L15
-	movw	$0, -4(%rbp)
-	movzwl	-20(%rbp), %eax
-	sarw	%ax
-	andl	$15, %eax
-	movw	%ax, -2(%rbp)
-	movzwl	-24(%rbp), %eax
-	sall	$7, %eax
-	movl	%eax, %edx
-	movzwl	-4(%rbp), %eax
-	sall	$4, %eax
-	orl	%eax, %edx
-	movzwl	-2(%rbp), %eax
-	orl	%edx, %eax
-	movb	%al, -5(%rbp)
-	movzbl	-5(%rbp), %eax
-	jmp	.L8
+	ldrh	r3, [fp, #-14]
+	and	r3, r3, #32
+	cmp	r3, #0
+	beq	.L15
+	mov	r3, #0
+	strh	r3, [fp, #-8]	@ movhi
+	ldrsh	r3, [fp, #-14]
+	asr	r3, r3, #1
+	sxth	r3, r3
+	and	r3, r3, #15
+	strh	r3, [fp, #-10]	@ movhi
+	ldrsh	r3, [fp, #-16]
+	lsl	r3, r3, #7
+	sxtb	r2, r3
+	ldrsh	r3, [fp, #-8]
+	lsl	r3, r3, #4
+	sxtb	r3, r3
+	orr	r3, r2, r3
+	sxtb	r2, r3
+	ldrh	r3, [fp, #-10]	@ movhi
+	sxtb	r3, r3
+	orr	r3, r2, r3
+	strb	r3, [fp, #-5]
+	ldrsb	r3, [fp, #-5]
+	b	.L8
 .L15:
-	movl	$0, %eax
+	mov	r3, #0
 .L8:
-	popq	%rbp
-	.cfi_def_cfa 7, 8
-	ret
-	.cfi_endproc
-.LFE8:
+	mov	r0, r3
+	add	sp, fp, #0
+	@ sp needed
+	ldr	fp, [sp], #4
+	bx	lr
 	.size	codeword_compression, .-codeword_compression
 	.section	.rodata
+	.align	2
 .LC0:
-	.string	"Usage: %s <path/to/wav/file>"
+	.ascii	"Usage: %s <path/to/wav/file>\000"
+	.align	2
 .LC1:
-	.string	"rb"
+	.ascii	"rb\000"
+	.align	2
 .LC2:
-	.string	"Failed to open file"
+	.ascii	"Failed to open file\000"
+	.align	2
 .LC3:
-	.string	"wb"
+	.ascii	"wb\000"
+	.align	2
 .LC4:
-	.string	"out.wav"
+	.ascii	"out.wav\000"
+	.align	2
 .LC5:
-	.string	"Error opening output file\n"
+	.ascii	"Error opening output file\012\000"
+	.align	2
 .LC6:
-	.string	"RIFF"
+	.ascii	"RIFF\000"
+	.align	2
 .LC7:
-	.string	"WAVE"
+	.ascii	"WAVE\000"
+	.align	2
 .LC8:
-	.string	"Invalid WAV file\n"
+	.ascii	"Invalid WAV file\012\000"
+	.align	2
 .LC9:
-	.string	"%d"
+	.ascii	"%d\000"
 	.text
-	.globl	main
-	.type	main, @function
+	.align	2
+	.global	main
+	.syntax unified
+	.arm
+	.fpu vfpv3-d16
+	.type	main, %function
 main:
-.LFB9:
-	.cfi_startproc
-	endbr64
-	pushq	%rbp
-	.cfi_def_cfa_offset 16
-	.cfi_offset 6, -16
-	movq	%rsp, %rbp
-	.cfi_def_cfa_register 6
-	subq	$176, %rsp
-	movl	%edi, -164(%rbp)
-	movq	%rsi, -176(%rbp)
-	movq	%fs:40, %rax
-	movq	%rax, -8(%rbp)
-	xorl	%eax, %eax
-	cmpl	$2, -164(%rbp)
-	je	.L17
-	movq	-176(%rbp), %rax
-	movq	(%rax), %rax
-	movq	%rax, %rsi
-	leaq	.LC0(%rip), %rax
-	movq	%rax, %rdi
-	movl	$0, %eax
-	call	printf@PLT
-	movl	$1, %eax
-	jmp	.L25
+	@ args = 0, pretend = 0, frame = 136
+	@ frame_needed = 1, uses_anonymous_args = 0
+	push	{fp, lr}
+	add	fp, sp, #4
+	sub	sp, sp, #136
+	str	r0, [fp, #-136]
+	str	r1, [fp, #-140]
+	ldr	r3, [fp, #-136]
+	cmp	r3, #2
+	beq	.L17
+	ldr	r3, [fp, #-140]
+	ldr	r3, [r3]
+	mov	r1, r3
+	movw	r0, #:lower16:.LC0
+	movt	r0, #:upper16:.LC0
+	bl	printf
+	mov	r3, #1
+	b	.L25
 .L17:
-	movq	-176(%rbp), %rax
-	addq	$8, %rax
-	movq	(%rax), %rax
-	leaq	.LC1(%rip), %rdx
-	movq	%rdx, %rsi
-	movq	%rax, %rdi
-	call	fopen@PLT
-	movq	%rax, -128(%rbp)
-	cmpq	$0, -128(%rbp)
-	jne	.L19
-	leaq	.LC2(%rip), %rax
-	movq	%rax, %rdi
-	movl	$0, %eax
-	call	printf@PLT
+	ldr	r3, [fp, #-140]
+	add	r3, r3, #4
+	ldr	r3, [r3]
+	movw	r1, #:lower16:.LC1
+	movt	r1, #:upper16:.LC1
+	mov	r0, r3
+	bl	fopen
+	str	r0, [fp, #-12]
+	ldr	r3, [fp, #-12]
+	cmp	r3, #0
+	bne	.L19
+	movw	r0, #:lower16:.LC2
+	movt	r0, #:upper16:.LC2
+	bl	printf
 .L19:
-	leaq	.LC3(%rip), %rax
-	movq	%rax, %rsi
-	leaq	.LC4(%rip), %rax
-	movq	%rax, %rdi
-	call	fopen@PLT
-	movq	%rax, -120(%rbp)
-	cmpq	$0, -120(%rbp)
-	jne	.L20
-	movq	stderr(%rip), %rax
-	movq	%rax, %rcx
-	movl	$26, %edx
-	movl	$1, %esi
-	leaq	.LC5(%rip), %rax
-	movq	%rax, %rdi
-	call	fwrite@PLT
-	movq	-128(%rbp), %rax
-	movq	%rax, %rdi
-	call	fclose@PLT
-	movl	$0, %eax
-	jmp	.L25
+	movw	r1, #:lower16:.LC3
+	movt	r1, #:upper16:.LC3
+	movw	r0, #:lower16:.LC4
+	movt	r0, #:upper16:.LC4
+	bl	fopen
+	str	r0, [fp, #-16]
+	ldr	r3, [fp, #-16]
+	cmp	r3, #0
+	bne	.L20
+	movw	r3, #:lower16:stderr
+	movt	r3, #:upper16:stderr
+	ldr	r3, [r3]
+	mov	r2, #26
+	mov	r1, #1
+	movw	r0, #:lower16:.LC5
+	movt	r0, #:upper16:.LC5
+	bl	fwrite
+	ldr	r0, [fp, #-12]
+	bl	fclose
+	mov	r3, #0
+	b	.L25
 .L20:
-	movq	-128(%rbp), %rdx
-	leaq	-112(%rbp), %rax
-	movq	%rdx, %rcx
-	movl	$1, %edx
-	movl	$44, %esi
-	movq	%rax, %rdi
-	call	fread@PLT
-	movq	-112(%rbp), %rax
-	movq	-104(%rbp), %rdx
-	movq	%rax, -64(%rbp)
-	movq	%rdx, -56(%rbp)
-	movq	-96(%rbp), %rax
-	movq	-88(%rbp), %rdx
-	movq	%rax, -48(%rbp)
-	movq	%rdx, -40(%rbp)
-	movq	-84(%rbp), %rax
-	movq	-76(%rbp), %rdx
-	movq	%rax, -36(%rbp)
-	movq	%rdx, -28(%rbp)
-	leaq	-112(%rbp), %rax
-	movl	$4, %edx
-	leaq	.LC6(%rip), %rcx
-	movq	%rcx, %rsi
-	movq	%rax, %rdi
-	call	memcmp@PLT
-	testl	%eax, %eax
-	jne	.L21
-	leaq	-112(%rbp), %rax
-	addq	$8, %rax
-	movl	$4, %edx
-	leaq	.LC7(%rip), %rcx
-	movq	%rcx, %rsi
-	movq	%rax, %rdi
-	call	memcmp@PLT
-	testl	%eax, %eax
-	je	.L22
+	sub	r0, fp, #80
+	ldr	r3, [fp, #-12]
+	mov	r2, #1
+	mov	r1, #44
+	bl	fread
+	sub	ip, fp, #124
+	sub	lr, fp, #80
+	ldmia	lr!, {r0, r1, r2, r3}
+	stmia	ip!, {r0, r1, r2, r3}
+	ldmia	lr!, {r0, r1, r2, r3}
+	stmia	ip!, {r0, r1, r2, r3}
+	ldm	lr, {r0, r1, r2}
+	stm	ip, {r0, r1, r2}
+	sub	r3, fp, #80
+	mov	r2, #4
+	movw	r1, #:lower16:.LC6
+	movt	r1, #:upper16:.LC6
+	mov	r0, r3
+	bl	memcmp
+	mov	r3, r0
+	cmp	r3, #0
+	bne	.L21
+	sub	r3, fp, #80
+	add	r3, r3, #8
+	mov	r2, #4
+	movw	r1, #:lower16:.LC7
+	movt	r1, #:upper16:.LC7
+	mov	r0, r3
+	bl	memcmp
+	mov	r3, r0
+	cmp	r3, #0
+	beq	.L22
 .L21:
-	movq	stderr(%rip), %rax
-	movq	%rax, %rcx
-	movl	$17, %edx
-	movl	$1, %esi
-	leaq	.LC8(%rip), %rax
-	movq	%rax, %rdi
-	call	fwrite@PLT
-	movq	-128(%rbp), %rax
-	movq	%rax, %rdi
-	call	fclose@PLT
-	movq	-120(%rbp), %rax
-	movq	%rax, %rdi
-	call	fclose@PLT
-	movl	$0, %eax
-	jmp	.L25
+	movw	r3, #:lower16:stderr
+	movt	r3, #:upper16:stderr
+	ldr	r3, [r3]
+	mov	r2, #17
+	mov	r1, #1
+	movw	r0, #:lower16:.LC8
+	movt	r0, #:upper16:.LC8
+	bl	fwrite
+	ldr	r0, [fp, #-12]
+	bl	fclose
+	ldr	r0, [fp, #-16]
+	bl	fclose
+	mov	r3, #0
+	b	.L25
 .L22:
-	movw	$8, -30(%rbp)
-	movl	-40(%rbp), %edx
-	movzwl	-42(%rbp), %eax
-	movzwl	%ax, %eax
-	imull	%edx, %eax
-	movl	%eax, -36(%rbp)
-	movzwl	-42(%rbp), %eax
-	movw	%ax, -32(%rbp)
-	movl	-24(%rbp), %eax
-	shrl	%eax
-	movl	%eax, -24(%rbp)
-	movl	-24(%rbp), %eax
-	addl	$36, %eax
-	movl	%eax, -60(%rbp)
-	movq	-120(%rbp), %rdx
-	leaq	-64(%rbp), %rax
-	movq	%rdx, %rcx
-	movl	$1, %edx
-	movl	$44, %esi
-	movq	%rax, %rdi
-	call	fwrite@PLT
-	movl	$0, -136(%rbp)
-	movl	$0, -132(%rbp)
-	movl	-76(%rbp), %eax
-	movl	%eax, %edx
-	movq	-128(%rbp), %rax
-	movl	$0, %esi
-	movq	%rax, %rdi
-	call	fseek@PLT
-	movl	-76(%rbp), %eax
-	movl	%eax, %esi
-	leaq	.LC9(%rip), %rax
-	movq	%rax, %rdi
-	movl	$0, %eax
-	call	printf@PLT
-	movl	$0, -140(%rbp)
-	jmp	.L23
+	mov	r3, #8
+	strh	r3, [fp, #-90]	@ movhi
+	ldr	r3, [fp, #-100]
+	ldrh	r2, [fp, #-102]
+	mul	r3, r2, r3
+	str	r3, [fp, #-96]
+	ldrh	r3, [fp, #-102]
+	strh	r3, [fp, #-92]	@ movhi
+	ldr	r3, [fp, #-84]
+	lsr	r3, r3, #1
+	str	r3, [fp, #-84]
+	ldr	r3, [fp, #-84]
+	add	r3, r3, #36
+	str	r3, [fp, #-120]
+	sub	r0, fp, #124
+	ldr	r3, [fp, #-16]
+	mov	r2, #1
+	mov	r1, #44
+	bl	fwrite
+	mov	r3, #0
+	str	r3, [fp, #-20]
+	mov	r3, #0
+	str	r3, [fp, #-24]
+	ldr	r3, [fp, #-44]
+	mov	r2, r3
+	mov	r1, #0
+	ldr	r0, [fp, #-12]
+	bl	fseek
+	ldr	r3, [fp, #-44]
+	mov	r1, r3
+	movw	r0, #:lower16:.LC9
+	movt	r0, #:upper16:.LC9
+	bl	printf
+	mov	r3, #0
+	str	r3, [fp, #-8]
+	b	.L23
 .L24:
-	movq	-128(%rbp), %rax
-	movq	%rax, %rdi
-	call	fgetc@PLT
-	movw	%ax, -150(%rbp)
-	movq	-128(%rbp), %rax
-	movq	%rax, %rdi
-	call	fgetc@PLT
-	movw	%ax, -148(%rbp)
-	movzwl	-148(%rbp), %eax
-	sall	$8, %eax
-	andw	$-32768, %ax
-	movl	%eax, %edx
-	movzwl	-148(%rbp), %eax
-	sall	$6, %eax
-	andw	$8128, %ax
-	orl	%eax, %edx
-	movzwl	-150(%rbp), %eax
-	sarw	$2, %ax
-	orl	%edx, %eax
-	movw	%ax, -146(%rbp)
-	movswl	-146(%rbp), %eax
-	movl	%eax, %edi
-	call	sign
-	movw	%ax, -144(%rbp)
-	movswl	-146(%rbp), %eax
-	movl	%eax, %edi
-	call	magnitude
-	movw	%ax, -142(%rbp)
-	movswl	-144(%rbp), %edx
-	movswl	-142(%rbp), %eax
-	movl	%edx, %esi
-	movl	%eax, %edi
-	call	codeword_compression
-	movb	%al, -151(%rbp)
-	movq	-120(%rbp), %rdx
-	leaq	-151(%rbp), %rax
-	movq	%rdx, %rcx
-	movl	$1, %edx
-	movl	$1, %esi
-	movq	%rax, %rdi
-	call	fwrite@PLT
-	addl	$1, -140(%rbp)
+	ldr	r0, [fp, #-12]
+	bl	fgetc
+	mov	r3, r0
+	strh	r3, [fp, #-26]	@ movhi
+	ldr	r0, [fp, #-12]
+	bl	fgetc
+	mov	r3, r0
+	strh	r3, [fp, #-28]	@ movhi
+	ldrsh	r3, [fp, #-28]
+	lsl	r3, r3, #8
+	sxth	r3, r3
+	bic	r3, r3, #32512
+	bic	r3, r3, #255
+	sxth	r2, r3
+	ldrh	r3, [fp, #-28]
+	lsl	r3, r3, #6
+	sxth	r3, r3
+	and	r3, r3, #8128
+	sxth	r3, r3
+	orr	r3, r2, r3
+	sxth	r2, r3
+	ldrsh	r3, [fp, #-26]
+	asr	r3, r3, #2
+	sxth	r3, r3
+	orr	r3, r2, r3
+	strh	r3, [fp, #-30]	@ movhi
+	ldrsh	r3, [fp, #-30]
+	mov	r0, r3
+	bl	sign
+	mov	r3, r0
+	strh	r3, [fp, #-32]	@ movhi
+	ldrsh	r3, [fp, #-30]
+	mov	r0, r3
+	bl	magnitude
+	mov	r3, r0
+	strh	r3, [fp, #-34]	@ movhi
+	ldrsh	r2, [fp, #-32]
+	ldrsh	r3, [fp, #-34]
+	mov	r1, r2
+	mov	r0, r3
+	bl	codeword_compression
+	mov	r3, r0
+	strb	r3, [fp, #-125]
+	sub	r0, fp, #125
+	ldr	r3, [fp, #-16]
+	mov	r2, #1
+	mov	r1, #1
+	bl	fwrite
+	ldr	r3, [fp, #-8]
+	add	r3, r3, #1
+	str	r3, [fp, #-8]
 .L23:
-	movl	-72(%rbp), %eax
-	shrl	%eax
-	movl	-140(%rbp), %edx
-	cmpl	%eax, %edx
-	jb	.L24
-	movq	-120(%rbp), %rax
-	movq	%rax, %rdi
-	call	fclose@PLT
-	movq	-128(%rbp), %rax
-	movq	%rax, %rdi
-	call	fclose@PLT
-	movl	$0, %eax
+	ldr	r3, [fp, #-40]
+	lsr	r2, r3, #1
+	ldr	r3, [fp, #-8]
+	cmp	r2, r3
+	bhi	.L24
+	ldr	r0, [fp, #-16]
+	bl	fclose
+	ldr	r0, [fp, #-12]
+	bl	fclose
+	mov	r3, #0
 .L25:
-	movq	-8(%rbp), %rdx
-	subq	%fs:40, %rdx
-	je	.L26
-	call	__stack_chk_fail@PLT
-.L26:
-	leave
-	.cfi_def_cfa 7, 8
-	ret
-	.cfi_endproc
-.LFE9:
+	mov	r0, r3
+	sub	sp, fp, #4
+	@ sp needed
+	pop	{fp, pc}
 	.size	main, .-main
-	.ident	"GCC: (Ubuntu 13.2.0-23ubuntu4) 13.2.0"
-	.section	.note.GNU-stack,"",@progbits
-	.section	.note.gnu.property,"a"
-	.align 8
-	.long	1f - 0f
-	.long	4f - 1f
-	.long	5
-0:
-	.string	"GNU"
-1:
-	.align 8
-	.long	0xc0000002
-	.long	3f - 2f
-2:
-	.long	0x3
-3:
-	.align 8
-4:
+	.ident	"GCC: (GNU) 8.2.1 20180801 (Red Hat 8.2.1-2)"
+	.section	.note.GNU-stack,"",%progbits
