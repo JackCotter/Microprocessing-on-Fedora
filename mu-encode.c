@@ -138,8 +138,8 @@ int main(int argc, char *argv[]) {
 	int bits_in_buffer = 0;
 	int byte;
 	fseek(file, 0, in_header.data);
-	printf("%d", in_header.data);
-	for(int i = 0; i < (in_header.dataSize/2); i++) {
+	int loopIterations = in_header.dataSize >> 2;
+	for(int i = 0; i < loopIterations; i++) {
 		//read 2 bytes 1 byte at a time
 		int16_t byte2 = fgetc(file);
 		int16_t byte1 = fgetc(file);
@@ -152,7 +152,15 @@ int main(int argc, char *argv[]) {
 		//compress
 		int8_t output_data_point = codeword_compression(mag, sig);
 		//write to output file
-		// printf("%x\n", output_data_point & 0xFF);
+		fwrite(&output_data_point, sizeof(output_data_point), 1, output_file);
+
+		// iterate again (loop unrolling)
+		byte2 = fgetc(file);
+		byte1 = fgetc(file);
+		data_point = (byte1 << 8 & 0x8000 | ((byte1 & 0x7F) << 6) | (byte2 >> 2));
+		sig = sign(data_point);
+		mag = magnitude(data_point);
+		output_data_point = codeword_compression(mag, sig);
 		fwrite(&output_data_point, sizeof(output_data_point), 1, output_file);
 	}
 	fclose(output_file);
