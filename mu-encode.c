@@ -133,7 +133,6 @@ int main(int argc, char *argv[]) {
 
 	fwrite(&out_header, sizeof(WAVHeader), 1, output_file);
 
-	// reading logic will need to be changed
 	uint32_t buffer = 0;
 	int bits_in_buffer = 0;
 	int byte;
@@ -145,7 +144,6 @@ int main(int argc, char *argv[]) {
 		int16_t byte1 = fgetc(file);
 		// combine the 2 bytes into a 16 bit integer
 		int16_t data_point = (byte1 << 8 & 0x8000 | ((byte1 & 0x7F) << 6) | (byte2 >> 2));
-		// printf("input: %x\n", data_point & 0xFFFF);
 		//extract sign and magnitude of the data point
 		int16_t sig = sign(data_point);
 		int16_t mag = magnitude(data_point);
