@@ -122,28 +122,30 @@ int main(int argc, char *argv[]) {
 	}
 	// alter header fields for compressed data
 	out_header.bitsPerSample = 16;
-	out_header.byteRate = out_header.sampleRate * out_header.numChannels * 2; // this calculation is sampleRate * numChannels * (bitsPerSample / 8) simplfied for 8 bit sample rate
-	out_header.blockAlign = out_header.numChannels * 2; // this calculation is numChannels * bitsPerSample / 8 simplified for 8 bit sample rate
-	out_header.dataSize = out_header.dataSize * 2; //this can be reorganized to remove direct dependancies
+	out_header.byteRate = out_header.sampleRate * out_header.numChannels << 1; // this calculation is sampleRate * numChannels * (bitsPerSample / 8) simplfied for 8 bit sample rate
+	out_header.blockAlign = out_header.numChannels << 1; // this calculation is numChannels * bitsPerSample / 8 simplified for 8 bit sample rate
+	out_header.dataSize = out_header.dataSize << 1; //this can be reorganized to remove direct dependancies
 	out_header.chunkSize = 36 + out_header.dataSize;
 
 	fwrite(&out_header, sizeof(WAVHeader), 1, output_file);
 
 	// reading logic will need to be changed
+	int loop_limit = in_header.dataSize >> 1;
 	fseek(file, 0, in_header.data);
-	printf("%d", in_header.data);
-	for(int i = 0; i < in_header.dataSize; i++) {
+	for(int i = 0; i < loop_limit; i++) {
 		int8_t byte = fgetc(file);
-		// printf("codeword: %x\n", byte & 0xFF);
+		int8_t byte_2 = fgetc(file);
 
 		int8_t sig = sign(byte);
 		int8_t mag = magnitude(byte);
-		// printf("sign: %x mag: %x\n", (sig & 0xFF), (mag & 0xFF));
+		int8_t sig_2 = sign(byte_2);
+		int8_t mag_2 = magnitude(byte_2);
 		//compress
 		int16_t data_point = codeword_expansion(mag, sig);
-		// printf("expanded: %x\n\n", data_point & 0xFFFF);
+		int16_t data_point_2 = codeword_expansion(mag_2, sig_2);
 		//write to output file
 		fwrite(&data_point, sizeof(data_point), 1, output_file);
+		fwrite(&data_point_2, sizeof(data_point_2), 1, output_file);
 	}
 	fclose(output_file);
 	fclose(file);

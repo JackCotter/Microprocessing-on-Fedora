@@ -35,8 +35,6 @@ int16_t magnitude (int16_t sample) {
 int8_t codeword_compression (int16_t sample_magnitude, int16_t sign) {
 	int16_t chord, step;
 	int8_t codeword_tmp = 0;
-	// printf("sign %x", sign & 0xFFFF);
-	// printf("mag %x\n", sample_magnitude & 0xFFFF);
 
 	if (sample_magnitude & (1 << 12)) {
 		//12th bit is set therefore 8th chord
@@ -128,32 +126,36 @@ int main(int argc, char *argv[]) {
 	out_header.bitsPerSample = 8;
 	out_header.byteRate = out_header.sampleRate * out_header.numChannels; // this calculation is sampleRate * numChannels * (bitsPerSample / 8) simplfied for 8 bit sample rate
 	out_header.blockAlign = out_header.numChannels; // this calculation is numChannels * bitsPerSample / 8 simplified for 8 bit sample rate
-	out_header.dataSize = out_header.dataSize / 2; //this can be reorganized to remove direct dependancies
+	out_header.dataSize = out_header.dataSize >> 1; //this can be reorganized to remove direct dependancies
 	out_header.chunkSize = 36 + out_header.dataSize;
 
 	fwrite(&out_header, sizeof(WAVHeader), 1, output_file);
 
-	// reading logic will need to be changed
 	uint32_t buffer = 0;
 	int bits_in_buffer = 0;
 	int byte;
 	fseek(file, 0, in_header.data);
-	printf("%d", in_header.data);
-	for(int i = 0; i < (in_header.dataSize/2); i++) {
+	int loopIterations = in_header.dataSize >> 2;
+	for(int i = 0; i < loopIterations; i++) {
 		//read 2 bytes 1 byte at a time
 		int16_t byte2 = fgetc(file);
 		int16_t byte1 = fgetc(file);
+		int16_t byte2_2 = fgetc(file);
+		int16_t byte1_2 = fgetc(file);
 		// combine the 2 bytes into a 16 bit integer
 		int16_t data_point = (byte1 << 8 & 0x8000 | ((byte1 & 0x7F) << 6) | (byte2 >> 2));
-		// printf("input: %x\n", data_point & 0xFFFF);
+		int16_t data_point_2 = (byte1_2 << 8 & 0x8000 | ((byte1_2 & 0x7F) << 6) | (byte2_2 >> 2));
 		//extract sign and magnitude of the data point
 		int16_t sig = sign(data_point);
 		int16_t mag = magnitude(data_point);
+		int16_t sig_2 = sign(data_point_2);
+		int16_t mag_2 = magnitude(data_point_2);
 		//compress
 		int8_t output_data_point = codeword_compression(mag, sig);
+		int8_t output_data_point_2 = codeword_compression(mag_2, sig_2);
 		//write to output file
-		// printf("%x\n", output_data_point & 0xFF);
 		fwrite(&output_data_point, sizeof(output_data_point), 1, output_file);
+		fwrite(&output_data_point_2, sizeof(output_data_point_2), 1, output_file);
 	}
 	fclose(output_file);
 	fclose(file);
