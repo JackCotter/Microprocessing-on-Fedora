@@ -35,8 +35,6 @@ int16_t magnitude (int16_t sample) {
 int8_t codeword_compression (int16_t sample_magnitude, int16_t sign) {
 	int16_t chord, step;
 	int8_t codeword_tmp = 0;
-	// printf("sign %x", sign & 0xFFFF);
-	// printf("mag %x\n", sample_magnitude & 0xFFFF);
 
 	if (sample_magnitude & (1 << 12)) {
 		//12th bit is set therefore 8th chord
@@ -142,24 +140,22 @@ int main(int argc, char *argv[]) {
 		//read 2 bytes 1 byte at a time
 		int16_t byte2 = fgetc(file);
 		int16_t byte1 = fgetc(file);
+		int16_t byte2_2 = fgetc(file);
+		int16_t byte1_2 = fgetc(file);
 		// combine the 2 bytes into a 16 bit integer
 		int16_t data_point = (byte1 << 8 & 0x8000 | ((byte1 & 0x7F) << 6) | (byte2 >> 2));
+		int16_t data_point_2 = (byte1_2 << 8 & 0x8000 | ((byte1_2 & 0x7F) << 6) | (byte2_2 >> 2));
 		//extract sign and magnitude of the data point
 		int16_t sig = sign(data_point);
 		int16_t mag = magnitude(data_point);
+		int16_t sig_2 = sign(data_point_2);
+		int16_t mag_2 = magnitude(data_point_2);
 		//compress
 		int8_t output_data_point = codeword_compression(mag, sig);
+		int8_t output_data_point_2 = codeword_compression(mag_2, sig_2);
 		//write to output file
 		fwrite(&output_data_point, sizeof(output_data_point), 1, output_file);
-
-		// iterate again (loop unrolling)
-		byte2 = fgetc(file);
-		byte1 = fgetc(file);
-		data_point = (byte1 << 8 & 0x8000 | ((byte1 & 0x7F) << 6) | (byte2 >> 2));
-		sig = sign(data_point);
-		mag = magnitude(data_point);
-		output_data_point = codeword_compression(mag, sig);
-		fwrite(&output_data_point, sizeof(output_data_point), 1, output_file);
+		fwrite(&output_data_point_2, sizeof(output_data_point_2), 1, output_file);
 	}
 	fclose(output_file);
 	fclose(file);

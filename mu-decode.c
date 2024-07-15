@@ -130,20 +130,22 @@ int main(int argc, char *argv[]) {
 	fwrite(&out_header, sizeof(WAVHeader), 1, output_file);
 
 	// reading logic will need to be changed
+	int loop_limit = in_header.dataSize/2;
 	fseek(file, 0, in_header.data);
-	printf("%d", in_header.data);
-	for(int i = 0; i < in_header.dataSize; i++) {
+	for(int i = 0; i < loop_limit; i++) {
 		int8_t byte = fgetc(file);
-		// printf("codeword: %x\n", byte & 0xFF);
+		int8_t byte_2 = fgetc(file);
 
 		int8_t sig = sign(byte);
 		int8_t mag = magnitude(byte);
-		// printf("sign: %x mag: %x\n", (sig & 0xFF), (mag & 0xFF));
+		int8_t sig_2 = sign(byte_2);
+		int8_t mag_2 = magnitude(byte_2);
 		//compress
 		int16_t data_point = codeword_expansion(mag, sig);
-		// printf("expanded: %x\n\n", data_point & 0xFFFF);
+		int16_t data_point_2 = codeword_expansion(mag_2, sig_2);
 		//write to output file
 		fwrite(&data_point, sizeof(data_point), 1, output_file);
+		fwrite(&data_point_2, sizeof(data_point_2), 1, output_file);
 	}
 	fclose(output_file);
 	fclose(file);
