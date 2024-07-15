@@ -126,7 +126,7 @@ int main(int argc, char *argv[]) {
 	out_header.bitsPerSample = 8;
 	out_header.byteRate = out_header.sampleRate * out_header.numChannels; // this calculation is sampleRate * numChannels * (bitsPerSample / 8) simplfied for 8 bit sample rate
 	out_header.blockAlign = out_header.numChannels; // this calculation is numChannels * bitsPerSample / 8 simplified for 8 bit sample rate
-	out_header.dataSize = out_header.dataSize / 2; //this can be reorganized to remove direct dependancies
+	out_header.dataSize = out_header.dataSize >> 1; //this can be reorganized to remove direct dependancies
 	out_header.chunkSize = 36 + out_header.dataSize;
 
 	fwrite(&out_header, sizeof(WAVHeader), 1, output_file);
