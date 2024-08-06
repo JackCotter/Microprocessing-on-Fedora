@@ -6,18 +6,18 @@
 // WAV file header format
 typedef struct {
     char riff[4];
-    uint32_t chunkSize;
+    uint32_t chunk_size; //CODING STANDARDS: No variable names should include upper case letters as per Barr-C section 7.1
     char wave[4];
     char fmt[4];
-    uint32_t subChunk1Size;
-    uint16_t audioFormat;
-    uint16_t numChannels;
-    uint32_t sampleRate;
-    uint32_t byteRate;
-    uint16_t blockAlign;
-    uint16_t bitsPerSample;
+    uint32_t sub_chunk_1_size;
+    uint16_t audio_format;
+    uint16_t num_channels;
+    uint32_t sample_rate;
+    uint32_t byte_rate;
+    uint16_t block_align;
+    uint16_t bits_per_sample;
     uint32_t data;
-    uint32_t dataSize;
+    uint32_t data_size;
 } WAVHeader;
 
 int16_t sign (int16_t sample) {
@@ -174,11 +174,11 @@ int main(int argc, char *argv[]) {
 	{
 	}
 	// alter header fields for compressed data
-	out_header.bitsPerSample = 8;
-	out_header.byteRate = out_header.sampleRate * out_header.numChannels; // this calculation is sampleRate * numChannels * (bitsPerSample / 8) simplfied for 8 bit sample rate
-	out_header.blockAlign = out_header.numChannels; // this calculation is numChannels * bitsPerSample / 8 simplified for 8 bit sample rate
-	out_header.dataSize = out_header.dataSize >> 1; //this can be reorganized to remove direct dependancies
-	out_header.chunkSize = 36 + out_header.dataSize;
+	out_header.bits_per_sample = 8;
+	out_header.byte_rate = out_header.sample_rate * out_header.num_channels; 
+	out_header.block_align = out_header.num_channels; 
+	out_header.data_size = out_header.data_size >> 1; 
+	out_header.chunk_size = 36 + out_header.data_size;
 
 	fwrite(&out_header, sizeof(WAVHeader), 1, output_file);
 
@@ -186,8 +186,8 @@ int main(int argc, char *argv[]) {
 	int bits_in_buffer = 0;
 	int byte;
 	fseek(file, 0, in_header.data);
-	int loopIterations = in_header.dataSize >> 2;
-	for(int i = 0; i < loopIterations; i++) 
+	int loopIterations = in_header.data_size >> 2;
+	for(int index = 0; index < loopIterations; index++) //CODING STANDARDS: No variable name should be shorted than 3 characters, including loop counters as per Barr-C 7.1.
 	{
 		int16_t byte2 = fgetc(file); //CODING STANDARDS: Whenever the width of an integer matters in a program, a fixed width data type should be used as per Barr-C 5.2.
 		int16_t byte1 = fgetc(file);
