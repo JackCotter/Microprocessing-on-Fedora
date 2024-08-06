@@ -26,6 +26,9 @@ int16_t sign (int16_t sample) {
 	{ 				// CODING STANDARDS: Braces must appear by itself on the line below the start of the block as per Barr-C section 1.3.
 		return 1;
 	}
+	else
+	{         // CODING STANDARDS: An if statement should be terminiated with an else statement as per MISRA-C 15.7.
+	}
 	return 0;
 }
 
@@ -45,12 +48,18 @@ int8_t codeword_compression (int16_t sample_magnitude, int16_t sign) {
 		return (int8_t) codeword_tmp; // Works with codeword_tmp as it is already int8
 		// CODING STANDARDS: Provide comments for each cast in your code as per Barr-C section 1.6
 	}
+	else
+	{
+	}
 	if (sample_magnitude & (1 << 11)) 
 	{
 		chord = 0x6;
 		step = (sample_magnitude >> 7) & 0xF;
 		codeword_tmp = (sign << 7) | (chord << 4) | step;
 		return (int8_t) codeword_tmp; // Works with codeword_tmp as it is already 8 bits
+	}
+	else
+	{
 	}
 	if (sample_magnitude & (1 << 10)) 
 	{
@@ -59,12 +68,18 @@ int8_t codeword_compression (int16_t sample_magnitude, int16_t sign) {
 		codeword_tmp = (sign << 7) | (chord << 4) | step;
 		return (int8_t) codeword_tmp; // Works with codeword_tmp as it is already 8 bits
 	}
+	else
+	{
+	}
 	if (sample_magnitude & (1 << 9)) 
 	{
 		chord = 0x4;
 		step = (sample_magnitude >> 5) & 0xF;
 		codeword_tmp = (sign << 7) | (chord << 4) | step;
 		return (int8_t) codeword_tmp; // Works with codeword_tmp as it is already 8 bits
+	}
+	else
+	{
 	}
 	if (sample_magnitude & (1 << 8)) 
 	{
@@ -73,12 +88,18 @@ int8_t codeword_compression (int16_t sample_magnitude, int16_t sign) {
 		codeword_tmp = (sign << 7) | (chord << 4) | step;
 		return (int8_t) codeword_tmp; // Works with codeword_tmp as it is already 8 bits
 	}
+	else
+	{
+	}
 	if (sample_magnitude & (1 << 7)) 
 	{
 		chord = 0x2;
 		step = (sample_magnitude >> 3) & 0xF;
 		codeword_tmp = (sign << 7) | (chord << 4) | step;
 		return (int8_t) codeword_tmp; // Works with codeword_tmp as it is already 8 bits
+	}
+	else
+	{
 	}
 	if (sample_magnitude & (1 << 6)) 
 	{
@@ -87,12 +108,18 @@ int8_t codeword_compression (int16_t sample_magnitude, int16_t sign) {
 		codeword_tmp = (sign << 7) | (chord << 4) | step;
 		return (int8_t) codeword_tmp; // Works with codeword_tmp as it is already int8
 	}
+	else
+	{
+	}
 	if (sample_magnitude & (1 << 5)) 
 	{
 		chord = 0x0;
 		step = (sample_magnitude >> 1) & 0xF;
 		codeword_tmp = (sign << 7) | (chord << 4) | step;
 		return (int8_t) codeword_tmp; // Works with codeword_tmp as it is already int8
+	}
+	else
+	{
 	}
 	return 0;
 }
@@ -103,11 +130,17 @@ int main(int argc, char *argv[]) {
 		printf("Usage: %s <path/to/wav/file>", argv[0]);
 		return 1;
 	}
+	else
+	{
+	}
 
 	FILE* file = fopen(argv[1], "rb");
 	if (!file) 
 	{
 		printf("Failed to open file");
+	}
+	else
+	{
 	}
 
 	FILE *output_file = fopen("out.wav", "wb");
@@ -116,6 +149,9 @@ int main(int argc, char *argv[]) {
 		fprintf(stderr, "Error opening output file\n");
 		fclose(file);
 		return 0;
+	}
+	else
+	{
 	}
 
 	// read and modify the WAV file header
@@ -134,6 +170,9 @@ int main(int argc, char *argv[]) {
 		fclose(output_file);
 		return 0;
 	}
+	else
+	{
+	}
 	// alter header fields for compressed data
 	out_header.bitsPerSample = 8;
 	out_header.byteRate = out_header.sampleRate * out_header.numChannels; // this calculation is sampleRate * numChannels * (bitsPerSample / 8) simplfied for 8 bit sample rate
@@ -150,7 +189,7 @@ int main(int argc, char *argv[]) {
 	int loopIterations = in_header.dataSize >> 2;
 	for(int i = 0; i < loopIterations; i++) 
 	{
-		int16_t byte2 = fgetc(file);
+		int16_t byte2 = fgetc(file); //CODING STANDARDS: Whenever the width of an integer matters in a program, a fixed width data type should be used as per Barr-C 5.2.
 		int16_t byte1 = fgetc(file);
 		int16_t byte2_2 = fgetc(file);
 		int16_t byte1_2 = fgetc(file);

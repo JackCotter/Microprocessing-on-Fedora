@@ -26,6 +26,9 @@ int8_t sign (int8_t sample) {
 	{
 		return 1;
 	}
+	else
+	{
+	}
 	return 0;
 }
 
@@ -43,6 +46,9 @@ int16_t codeword_expansion (int8_t sample_magnitude, int8_t sign) {
 	       	codeword_tmp = (sign << 15) | (chord | step << 8 | 0x1 << 7) << 2;
 	       	return (int16_t) codeword_tmp; // Works with codeword_tmp as it is already 16 bits
 	}
+	else
+	{
+	}
 	if ((sample_magnitude & (0x6 << 4)) == 0x60) 
 	{
 		chord = 0x1 << 11;
@@ -50,6 +56,9 @@ int16_t codeword_expansion (int8_t sample_magnitude, int8_t sign) {
 	       	codeword_tmp = (sign << 15) | (chord | step << 7 | 0x1 << 6) << 2;
 	       	return (int16_t) codeword_tmp; // Works with codeword_tmp as it is already 16 bits
 	} 
+	else
+	{
+	}
 	if ((sample_magnitude & (0x5 << 4)) == 0x50) 
 	{
 		chord = 0x1 << 10;
@@ -57,12 +66,18 @@ int16_t codeword_expansion (int8_t sample_magnitude, int8_t sign) {
 	       	codeword_tmp = (sign << 15) | (chord | step << 6 | 0x1 << 5) << 2;
 	       	return (int16_t) codeword_tmp; // Works with codeword_tmp as it is already 16 bits
 	} 
+	else
+	{
+	}
 	if ((sample_magnitude & (0x4 << 4)) == 0x40) 
 	{
 		chord = 0x1 << 9;
 		step = (sample_magnitude & 0xF);
 	       	codeword_tmp = (sign << 15) | (chord | step << 5 | 0x1 << 4) << 2;
 	       	return (int16_t) codeword_tmp; // Works with codeword_tmp as it is already 16 bits
+	}
+	else
+	{
 	}
 	if ((sample_magnitude & (0x3 << 4)) == 0x30) 
 	{
@@ -71,12 +86,18 @@ int16_t codeword_expansion (int8_t sample_magnitude, int8_t sign) {
 	       	codeword_tmp = (sign << 15) | (chord | step << 4 | 0x1 << 3) << 2;
 	       	return (int16_t) codeword_tmp; // Works with codeword_tmp as it is already 16 bits
 	}
+	else
+	{
+	}
 	if ((sample_magnitude & (0x2 << 4)) == 0x20) 
 	{
 		chord = 0x1 << 7;
 		step = (sample_magnitude & 0xF);
 	       	codeword_tmp = (sign << 15) | (chord | step << 3 | 0x1 << 2) << 2;
 	       	return (int16_t) codeword_tmp; // Works with codeword_tmp as it is already 16 bits
+	}
+	else
+	{
 	}
 	if ((sample_magnitude & (0x1 << 4)) == 0x10) 
 	{
@@ -85,12 +106,18 @@ int16_t codeword_expansion (int8_t sample_magnitude, int8_t sign) {
 	       	codeword_tmp = (sign << 15) | (chord | step << 2 | 0x1 << 1) << 2;
 	       	return (int16_t) codeword_tmp; // Works with codeword_tmp as it is already 16 bits
 	}
+	else
+	{
+	}
 	if (sample_magnitude & (0x7 << 4) == 0) 
 	{
 		chord = 0x1 << 5;
 		step = (sample_magnitude & 0xF);
 	       	codeword_tmp = (sign << 15) | (chord | step << 1 | 0x1) << 2;
 	       	return (int16_t) codeword_tmp; // Works with codeword_tmp as it is already 16 bits
+	}
+	else
+	{
 	}
 	return 0;
 }
@@ -101,11 +128,17 @@ int main(int argc, char *argv[]) {
 		printf("Usage: %s <path/to/wav/file>", argv[0]);
 		return 1;
 	}
+	else
+	{
+	}
 
 	FILE* file = fopen(argv[1], "rb");
 	if (!file) 
 	{
 		printf("Failed to open file");
+	}
+	else
+	{
 	}
 
 	// open the output file for writing
@@ -115,6 +148,9 @@ int main(int argc, char *argv[]) {
 		fprintf(stderr, "Error opening output file\n");
 		fclose(file);
 		return 0;
+	}
+	else
+	{
 	}
 
 	// read and modify the WAV file header
@@ -132,6 +168,9 @@ int main(int argc, char *argv[]) {
 		fclose(file);
 		fclose(output_file);
 		return 0;
+	}
+	else
+	{
 	}
 	// alter header fields for compressed data
 	out_header.bitsPerSample = 16;
