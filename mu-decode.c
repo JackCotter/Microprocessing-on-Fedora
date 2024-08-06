@@ -20,7 +20,7 @@ typedef struct {
     uint32_t data_size;
 } WAVHeader;
 
-int8_t sign (int8_t sample) {
+uint8_t sign (uint8_t sample) {
 	//return the sign of the sample: 1 (true) if positive, 0 (false) if negative. 
 	if (sample & (1 << 7)) 
 	{
@@ -32,19 +32,19 @@ int8_t sign (int8_t sample) {
 	return 0;
 }
 
-int8_t magnitude (int8_t sample) {
+uint8_t magnitude (uint8_t sample) {
 	return sample & 0x7F;
 }
 
-int16_t codeword_expansion (int8_t sample_magnitude, int8_t sign) {
-	int16_t chord, step, codeword_tmp;
+uint16_t codeword_expansion (uint8_t sample_magnitude, uint8_t sign) {
+	uint16_t chord, step, codeword_tmp;
 
 	if ((sample_magnitude & (0x7 << 4)) == 0x70) 
 	{
 		chord = 0x1 << 12;
 		step = (sample_magnitude & 0xF);
 	       	codeword_tmp = (sign << 15) | (chord | step << 8 | 0x1 << 7) << 2;
-	       	return (int16_t) codeword_tmp; // Works with codeword_tmp as it is already 16 bits
+	       	return (uint16_t) codeword_tmp; // Works with codeword_tmp as it is already 16 bits
 	}
 	else
 	{
@@ -54,7 +54,7 @@ int16_t codeword_expansion (int8_t sample_magnitude, int8_t sign) {
 		chord = 0x1 << 11;
 		step = (sample_magnitude & 0xF);
 	       	codeword_tmp = (sign << 15) | (chord | step << 7 | 0x1 << 6) << 2;
-	       	return (int16_t) codeword_tmp; // Works with codeword_tmp as it is already 16 bits
+	       	return (uint16_t) codeword_tmp; // Works with codeword_tmp as it is already 16 bits
 	} 
 	else
 	{
@@ -64,7 +64,7 @@ int16_t codeword_expansion (int8_t sample_magnitude, int8_t sign) {
 		chord = 0x1 << 10;
 		step = (sample_magnitude & 0xF);
 	       	codeword_tmp = (sign << 15) | (chord | step << 6 | 0x1 << 5) << 2;
-	       	return (int16_t) codeword_tmp; // Works with codeword_tmp as it is already 16 bits
+	       	return (uint16_t) codeword_tmp; // Works with codeword_tmp as it is already 16 bits
 	} 
 	else
 	{
@@ -74,7 +74,7 @@ int16_t codeword_expansion (int8_t sample_magnitude, int8_t sign) {
 		chord = 0x1 << 9;
 		step = (sample_magnitude & 0xF);
 	       	codeword_tmp = (sign << 15) | (chord | step << 5 | 0x1 << 4) << 2;
-	       	return (int16_t) codeword_tmp; // Works with codeword_tmp as it is already 16 bits
+	       	return (uint16_t) codeword_tmp; // Works with codeword_tmp as it is already 16 bits
 	}
 	else
 	{
@@ -84,7 +84,7 @@ int16_t codeword_expansion (int8_t sample_magnitude, int8_t sign) {
 		chord = 0x1 << 8;
 		step = (sample_magnitude & 0xF);
 	       	codeword_tmp = (sign << 15) | (chord | step << 4 | 0x1 << 3) << 2;
-	       	return (int16_t) codeword_tmp; // Works with codeword_tmp as it is already 16 bits
+	       	return (uint16_t) codeword_tmp; // Works with codeword_tmp as it is already 16 bits
 	}
 	else
 	{
@@ -94,7 +94,7 @@ int16_t codeword_expansion (int8_t sample_magnitude, int8_t sign) {
 		chord = 0x1 << 7;
 		step = (sample_magnitude & 0xF);
 	       	codeword_tmp = (sign << 15) | (chord | step << 3 | 0x1 << 2) << 2;
-	       	return (int16_t) codeword_tmp; // Works with codeword_tmp as it is already 16 bits
+	       	return (uint16_t) codeword_tmp; // Works with codeword_tmp as it is already 16 bits
 	}
 	else
 	{
@@ -104,7 +104,7 @@ int16_t codeword_expansion (int8_t sample_magnitude, int8_t sign) {
 		chord = 0x1 << 6;
 		step = (sample_magnitude & 0xF);
 	       	codeword_tmp = (sign << 15) | (chord | step << 2 | 0x1 << 1) << 2;
-	       	return (int16_t) codeword_tmp; // Works with codeword_tmp as it is already 16 bits
+	       	return (uint16_t) codeword_tmp; // Works with codeword_tmp as it is already 16 bits
 	}
 	else
 	{
@@ -114,7 +114,7 @@ int16_t codeword_expansion (int8_t sample_magnitude, int8_t sign) {
 		chord = 0x1 << 5;
 		step = (sample_magnitude & 0xF);
 	       	codeword_tmp = (sign << 15) | (chord | step << 1 | 0x1) << 2;
-	       	return (int16_t) codeword_tmp; // Works with codeword_tmp as it is already 16 bits
+	       	return (uint16_t) codeword_tmp; // Works with codeword_tmp as it is already 16 bits
 	}
 	else
 	{
@@ -186,16 +186,16 @@ int main(int argc, char *argv[]) {
 	fseek(file, 0, in_header.data);
 	for(int index = 0; index < loop_limit; index++)  
 	{
-		int8_t byte = fgetc(file);
-		int8_t byte_2 = fgetc(file);
+		uint8_t byte = fgetc(file);
+		uint8_t byte_2 = fgetc(file);
 
-		int8_t sig = sign(byte);
-		int8_t mag = magnitude(byte);
-		int8_t sig_2 = sign(byte_2);
-		int8_t mag_2 = magnitude(byte_2);
+		uint8_t sig = sign(byte);
+		uint8_t mag = magnitude(byte);
+		uint8_t sig_2 = sign(byte_2);
+		uint8_t mag_2 = magnitude(byte_2);
 		//compress
-		int16_t data_point = codeword_expansion(mag, sig);
-		int16_t data_point_2 = codeword_expansion(mag_2, sig_2);
+		uint16_t data_point = codeword_expansion(mag, sig);
+		uint16_t data_point_2 = codeword_expansion(mag_2, sig_2);
 		//write to output file
 		fwrite(&data_point, sizeof(data_point), 1, output_file);
 		fwrite(&data_point_2, sizeof(data_point_2), 1, output_file);
