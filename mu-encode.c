@@ -21,8 +21,9 @@ typedef struct {
 } WAVHeader;
 
 int16_t sign (int16_t sample) {
-	//return the sign of the sample: 1 (true) if positive, 0 (false) if negative. 
-	if (sample & 1 << 15) {
+	// return the sign of the sample: 1 (true) if positive, 0 (false) if negative. 
+	if (sample & (1 << 15)) 
+	{ 				// CODING STANDARDS: Braces must appear by itself on the line below the start of the block as per Barr-C section 1.3.
 		return 1;
 	}
 	return 0;
@@ -36,72 +37,82 @@ int8_t codeword_compression (int16_t sample_magnitude, int16_t sign) {
 	int16_t chord, step;
 	int8_t codeword_tmp = 0;
 
-	if (sample_magnitude & (1 << 12)) {
-		//12th bit is set therefore 8th chord
+	if (sample_magnitude & (1 << 12))    // CODING STANDARDS: So not rely on operator precedence rules, use parentheses to ensure proper execution of code as per Barr-C section 1.4. 
+	{
 		chord = 0x7;
 		step = (sample_magnitude >> 8) & 0xF;
 		codeword_tmp = (sign << 7) | (chord << 4) | step;
-		return (int8_t) codeword_tmp;
+		return (int8_t) codeword_tmp; // Works with codeword_tmp as it is already int8
+		// CODING STANDARDS: Provide comments for each cast in your code as per Barr-C section 1.6
 	}
-	if (sample_magnitude & (1 << 11)) {
+	if (sample_magnitude & (1 << 11)) 
+	{
 		chord = 0x6;
 		step = (sample_magnitude >> 7) & 0xF;
 		codeword_tmp = (sign << 7) | (chord << 4) | step;
-		return (int8_t) codeword_tmp;
+		return (int8_t) codeword_tmp; // Works with codeword_tmp as it is already 8 bits
 	}
-	if (sample_magnitude & (1 << 10)) {
+	if (sample_magnitude & (1 << 10)) 
+	{
 		chord = 0x5;
 		step = (sample_magnitude >> 6) & 0xF;
 		codeword_tmp = (sign << 7) | (chord << 4) | step;
-		return (int8_t) codeword_tmp;
+		return (int8_t) codeword_tmp; // Works with codeword_tmp as it is already 8 bits
 	}
-	if (sample_magnitude & (1 << 9)) {
+	if (sample_magnitude & (1 << 9)) 
+	{
 		chord = 0x4;
 		step = (sample_magnitude >> 5) & 0xF;
 		codeword_tmp = (sign << 7) | (chord << 4) | step;
-		return (int8_t) codeword_tmp;
+		return (int8_t) codeword_tmp; // Works with codeword_tmp as it is already 8 bits
 	}
-	if (sample_magnitude & (1 << 8)) {
+	if (sample_magnitude & (1 << 8)) 
+	{
 		chord = 0x3;
 		step = (sample_magnitude >> 4) & 0xF;
 		codeword_tmp = (sign << 7) | (chord << 4) | step;
-		return (int8_t) codeword_tmp;
+		return (int8_t) codeword_tmp; // Works with codeword_tmp as it is already 8 bits
 	}
-	if (sample_magnitude & (1 << 7)) {
+	if (sample_magnitude & (1 << 7)) 
+	{
 		chord = 0x2;
 		step = (sample_magnitude >> 3) & 0xF;
 		codeword_tmp = (sign << 7) | (chord << 4) | step;
-		return (int8_t) codeword_tmp;
+		return (int8_t) codeword_tmp; // Works with codeword_tmp as it is already 8 bits
 	}
-	if (sample_magnitude & (1 << 6)) {
+	if (sample_magnitude & (1 << 6)) 
+	{
 		chord = 0x1;
 		step = (sample_magnitude >> 2) & 0xF;
 		codeword_tmp = (sign << 7) | (chord << 4) | step;
-		return (int8_t) codeword_tmp;
+		return (int8_t) codeword_tmp; // Works with codeword_tmp as it is already int8
 	}
-	if (sample_magnitude & (1 << 5)) {
+	if (sample_magnitude & (1 << 5)) 
+	{
 		chord = 0x0;
 		step = (sample_magnitude >> 1) & 0xF;
 		codeword_tmp = (sign << 7) | (chord << 4) | step;
-		return (int8_t) codeword_tmp;
+		return (int8_t) codeword_tmp; // Works with codeword_tmp as it is already int8
 	}
 	return 0;
 }
 
 int main(int argc, char *argv[]) {
-	if (argc != 2) {
+	if (argc != 2) 
+	{
 		printf("Usage: %s <path/to/wav/file>", argv[0]);
 		return 1;
 	}
 
 	FILE* file = fopen(argv[1], "rb");
-	if (!file) {
+	if (!file) 
+	{
 		printf("Failed to open file");
 	}
 
-	// open the output file for writing
 	FILE *output_file = fopen("out.wav", "wb");
-	if (!output_file) {
+	if (!output_file) 
+	{
 		fprintf(stderr, "Error opening output file\n");
 		fclose(file);
 		return 0;
@@ -116,7 +127,8 @@ int main(int argc, char *argv[]) {
 	out_header = in_header;
 
 	// Check if the input file is a valid WAV file
-	if (memcmp(in_header.riff, "RIFF", 4) != 0 || memcmp(in_header.wave, "WAVE", 4) != 0) {
+	if (memcmp(in_header.riff, "RIFF", 4) != 0 || memcmp(in_header.wave, "WAVE", 4) != 0) 
+	{
 		fprintf(stderr, "Invalid WAV file\n");
 		fclose(file);
 		fclose(output_file);
@@ -136,8 +148,8 @@ int main(int argc, char *argv[]) {
 	int byte;
 	fseek(file, 0, in_header.data);
 	int loopIterations = in_header.dataSize >> 2;
-	for(int i = 0; i < loopIterations; i++) {
-		//read 2 bytes 1 byte at a time
+	for(int i = 0; i < loopIterations; i++) 
+	{
 		int16_t byte2 = fgetc(file);
 		int16_t byte1 = fgetc(file);
 		int16_t byte2_2 = fgetc(file);
