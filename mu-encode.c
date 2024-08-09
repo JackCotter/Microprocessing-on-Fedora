@@ -44,8 +44,8 @@ uint8_t codeword_compression (uint16_t sample_magnitude, uint16_t sign) {
 	// use CLZ assembly instruction to find the number of leading zeros
 	asm volatile ("CLZ %0, %1": "=r" (leading_zeros): "r" (sample_magnitude));
 	// subtract 2 leading zeros as we are dealing with a 16 bit magnitude that we only need 14bits of
-	int step_shift = abs(leading_zeros - 11);
-	chord = abs((leading_zeros - 10));
+	int step_shift = abs(leading_zeros - 27);
+	chord = abs((leading_zeros - 26));
 	// extract step value via shift and mask
 	step = (sample_magnitude >> step_shift) & 0x000F;
 	// combine sign, chord and step to get compressed value
