@@ -37,89 +37,15 @@ uint8_t magnitude (uint8_t sample) {
 }
 
 uint16_t codeword_expansion (uint8_t sample_magnitude, uint8_t sign) {
-	uint16_t chord, step, codeword_tmp;
-
-	if ((sample_magnitude & (0x7 << 4)) == 0x70) 
-	{
-		chord = 0x1 << 12;
-		step = (sample_magnitude & 0xF);
-	       	codeword_tmp = (sign << 15) | (chord | step << 8 | 0x1 << 7) << 2;
-	       	return (uint16_t) codeword_tmp; // Works with codeword_tmp as it is already 16 bits
-	}
-	else
-	{
-	}
-	if ((sample_magnitude & (0x6 << 4)) == 0x60) 
-	{
-		chord = 0x1 << 11;
-		step = (sample_magnitude & 0xF);
-	       	codeword_tmp = (sign << 15) | (chord | step << 7 | 0x1 << 6) << 2;
-	       	return (uint16_t) codeword_tmp; // Works with codeword_tmp as it is already 16 bits
-	} 
-	else
-	{
-	}
-	if ((sample_magnitude & (0x5 << 4)) == 0x50) 
-	{
-		chord = 0x1 << 10;
-		step = (sample_magnitude & 0xF);
-	       	codeword_tmp = (sign << 15) | (chord | step << 6 | 0x1 << 5) << 2;
-	       	return (uint16_t) codeword_tmp; // Works with codeword_tmp as it is already 16 bits
-	} 
-	else
-	{
-	}
-	if ((sample_magnitude & (0x4 << 4)) == 0x40) 
-	{
-		chord = 0x1 << 9;
-		step = (sample_magnitude & 0xF);
-	       	codeword_tmp = (sign << 15) | (chord | step << 5 | 0x1 << 4) << 2;
-	       	return (uint16_t) codeword_tmp; // Works with codeword_tmp as it is already 16 bits
-	}
-	else
-	{
-	}
-	if ((sample_magnitude & (0x3 << 4)) == 0x30) 
-	{
-		chord = 0x1 << 8;
-		step = (sample_magnitude & 0xF);
-	       	codeword_tmp = (sign << 15) | (chord | step << 4 | 0x1 << 3) << 2;
-	       	return (uint16_t) codeword_tmp; // Works with codeword_tmp as it is already 16 bits
-	}
-	else
-	{
-	}
-	if ((sample_magnitude & (0x2 << 4)) == 0x20) 
-	{
-		chord = 0x1 << 7;
-		step = (sample_magnitude & 0xF);
-	       	codeword_tmp = (sign << 15) | (chord | step << 3 | 0x1 << 2) << 2;
-	       	return (uint16_t) codeword_tmp; // Works with codeword_tmp as it is already 16 bits
-	}
-	else
-	{
-	}
-	if ((sample_magnitude & (0x1 << 4)) == 0x10) 
-	{
-		chord = 0x1 << 6;
-		step = (sample_magnitude & 0xF);
-	       	codeword_tmp = (sign << 15) | (chord | step << 2 | 0x1 << 1) << 2;
-	       	return (uint16_t) codeword_tmp; // Works with codeword_tmp as it is already 16 bits
-	}
-	else
-	{
-	}
-	if (sample_magnitude & (0x7 << 4) == 0) 
-	{
-		chord = 0x1 << 5;
-		step = (sample_magnitude & 0xF);
-	       	codeword_tmp = (sign << 15) | (chord | step << 1 | 0x1) << 2;
-	       	return (uint16_t) codeword_tmp; // Works with codeword_tmp as it is already 16 bits
-	}
-	else
-	{
-	}
-	return 0;
+	uint16_t chord, step, val_tmp, codeword_tmp;
+	//get step
+	step = sample_magnitude & 0x0F;
+	//get chord
+	chord = sample_magnitude & 0x70;
+	//create value to be shifted
+	val_tmp = (0x0020) | (step << 1) | (0x0001);
+	//create and return expanded codeword
+	return codeword_tmp = (sign << 15) | (val_tmp << (chord + 2));
 }
 
 int main(int argc, char *argv[]) {

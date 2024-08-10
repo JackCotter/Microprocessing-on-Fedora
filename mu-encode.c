@@ -39,89 +39,19 @@ uint16_t magnitude (uint16_t sample) {
 uint8_t codeword_compression (uint16_t sample_magnitude, uint16_t sign) {
 	uint16_t chord, step; // CODING STANDARDS: bitwise operations should not be performed on signed integers, use unsigned. Barr-C section 5.3.
 	uint8_t codeword_tmp = 0;
+	int leading_zeros = 0;
 
-	if (sample_magnitude & (1 << 12))    // CODING STANDARDS: So not rely on operator precedence rules, use parentheses to ensure proper execution of code as per Barr-C section 1.4. 
-	{
-		chord = 0x7;
-		step = (sample_magnitude >> 8) & 0xF;
-		codeword_tmp = (sign << 7) | (chord << 4) | step;
-		return (uint8_t) codeword_tmp; // Works with codeword_tmp as it is already uint8
-		// CODING STANDARDS: Provide comments for each cast in your code as per Barr-C section 1.6
-	}
-	else
-	{
-	}
-	if (sample_magnitude & (1 << 11)) 
-	{
-		chord = 0x6;
-		step = (sample_magnitude >> 7) & 0xF;
-		codeword_tmp = (sign << 7) | (chord << 4) | step;
-		return (uint8_t) codeword_tmp; // Works with codeword_tmp as it is already 8 bits
-	}
-	else
-	{
-	}
-	if (sample_magnitude & (1 << 10)) 
-	{
-		chord = 0x5;
-		step = (sample_magnitude >> 6) & 0xF;
-		codeword_tmp = (sign << 7) | (chord << 4) | step;
-		return (uint8_t) codeword_tmp; // Works with codeword_tmp as it is already 8 bits
-	}
-	else
-	{
-	}
-	if (sample_magnitude & (1 << 9)) 
-	{
-		chord = 0x4;
-		step = (sample_magnitude >> 5) & 0xF;
-		codeword_tmp = (sign << 7) | (chord << 4) | step;
-		return (uint8_t) codeword_tmp; // Works with codeword_tmp as it is already 8 bits
-	}
-	else
-	{
-	}
-	if (sample_magnitude & (1 << 8)) 
-	{
-		chord = 0x3;
-		step = (sample_magnitude >> 4) & 0xF;
-		codeword_tmp = (sign << 7) | (chord << 4) | step;
-		return (uint8_t) codeword_tmp; // Works with codeword_tmp as it is already 8 bits
-	}
-	else
-	{
-	}
-	if (sample_magnitude & (1 << 7)) 
-	{
-		chord = 0x2;
-		step = (sample_magnitude >> 3) & 0xF;
-		codeword_tmp = (sign << 7) | (chord << 4) | step;
-		return (uint8_t) codeword_tmp; // Works with codeword_tmp as it is already 8 bits
-	}
-	else
-	{
-	}
-	if (sample_magnitude & (1 << 6)) 
-	{
-		chord = 0x1;
-		step = (sample_magnitude >> 2) & 0xF;
-		codeword_tmp = (sign << 7) | (chord << 4) | step;
-		return (uint8_t) codeword_tmp; // Works with codeword_tmp as it is already uint8
-	}
-	else
-	{
-	}
-	if (sample_magnitude & (1 << 5)) 
-	{
-		chord = 0x0;
-		step = (sample_magnitude >> 1) & 0xF;
-		codeword_tmp = (sign << 7) | (chord << 4) | step;
-		return (uint8_t) codeword_tmp; // Works with codeword_tmp as it is already uint8
-	}
-	else
-	{
-	}
-	return 0;
+	// use CLZ assembly instruction to find the number of leading zeros
+	asm volatile ("CLZ %0, %1": "=r" (leading_zeros): "r" (sample_magnitude));
+	// subtract 2 leading zeros as we are dealing with a 16 bit magnitude that we only need 14bits of
+	int step_shift = abs(leading_zeros - 27);
+	chord = abs((leading_zeros - 26));
+	// extract step value via shift and mask
+	step = (sample_magnitude >> step_shift) & 0x000F;
+	// combine sign, chord and step to get compressed value
+	codeword_tmp = ((sign << 7) & 0x80) | ((chord << 4) & 0x70) | (step & 0x0F);
+
+	return (uint8_t) codeword_tmp;
 }
 
 int main(int argc, char *argv[]) {
