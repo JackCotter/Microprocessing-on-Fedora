@@ -1,12 +1,12 @@
 --------------------------------------------------------------------------------
-Profile data file 'callgrind.out.1071' (creator: callgrind-3.13.0)
+Profile data file 'callgrind.out.1115' (creator: callgrind-3.13.0)
 --------------------------------------------------------------------------------
 I1 cache: 
 D1 cache: 
 LL cache: 
-Timerange: Basic block 0 - 4221344
+Timerange: Basic block 0 - 4180685
 Trigger: Program termination
-Profiled target:  ./mu-encode 16-bit-recordings/00002.wav (PID 1071, part 1)
+Profiled target:  ./mu-encode 16-bit-recordings/00002.wav (PID 1115, part 1)
 Events recorded:  Ir
 Events shown:     Ir
 Event sort order: Ir
@@ -18,19 +18,19 @@ Auto-annotation:  off
 --------------------------------------------------------------------------------
         Ir 
 --------------------------------------------------------------------------------
-23,709,972  PROGRAM TOTALS
+23,346,746  PROGRAM TOTALS
 
 --------------------------------------------------------------------------------
        Ir  file:function
 --------------------------------------------------------------------------------
-6,560,554  ???:fwrite [/usr/lib/libc-2.28.so]
-5,199,974  mu-encode.c:main'2 [/root/Microprocessing-on-Fedora/mu-encode]
+6,560,374  ???:fwrite [/usr/lib/libc-2.28.so]
+4,839,942  mu-encode.c:main'2 [/root/Microprocessing-on-Fedora/mu-encode]
 3,193,576  mu-encode.c:codeword_compression [/root/Microprocessing-on-Fedora/mu-encode]
-2,400,490  ???:_IO_file_xsputn@@GLIBC_2.4 [/usr/lib/libc-2.28.so]
+2,400,430  ???:_IO_file_xsputn@@GLIBC_2.4 [/usr/lib/libc-2.28.so]
 2,239,883  ???:getc [/usr/lib/libc-2.28.so]
 1,199,765  ???:__memcpy_neon [/usr/lib/libc-2.28.so]
 1,115,434  mu-encode.c:sign'2 [/root/Microprocessing-on-Fedora/mu-encode]
   960,000  mu-encode.c:magnitude [/root/Microprocessing-on-Fedora/mu-encode]
-  399,930  ???:mempcpy [/usr/lib/ld-2.28.so]
+  399,930  ???:mempcpy [/usr/lib/libc-2.28.so]
   239,949  ???:0x0485b064 [???]
 
